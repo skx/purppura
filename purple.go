@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //
@@ -137,12 +138,20 @@ func main() {
 	db := flag.String("database", "alerts.db", "The SQLite3 database to use")
 	host := flag.String("host", "localhost", "The host to listen upon")
 
+	hash := flag.String("hash", "", "Hash the specified plaintext password")
 	port := flag.Int("port", 8080, "The port to listen upon")
 
 	users := flag.String("auth-file", "users", "The username/password file to authentication against")
 	notify := flag.String("notify-binary", "purple-notify", "The binary to execute to issue notifications")
 	renotify := flag.String("renotify-binary", "purple-renotify", "The binary to execute for notification reminders")
 	flag.Parse()
+
+	if *hash != "" {
+		pBytes, _ := bcrypt.GenerateFromPassword([]byte(*hash), 14)
+		pCrypt := string(pBytes)
+		fmt.Printf("%s\n", pCrypt)
+		os.Exit(0)
+	}
 
 	CONFIG.UserFile = *users
 	CONFIG.NotifyBinary = *notify
