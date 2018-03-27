@@ -35,7 +35,7 @@ The usernames and passwords which will grant access to the web interface are sto
 
 # Alerts
 
-Alerts are submitted by making a HTTP POST-request to the server, with a JSON-payload of a [number of fields](ALERTS.md).
+Alerts are submitted by making a HTTP POST-request to the server, with a JSON-payload containing a [number of fields](ALERTS.md).
 
 When a new POST request is received it will be transformed into an alert:
 
@@ -55,8 +55,7 @@ Alerts have several states:
    * Alerts which are cleared have previously been raised but have now cleared.
    * Alerts in the cleared-state are reaped over time.
 
-Submissions are expected to be JSON-encoded POST payloads, sent
-to the http://1.2.3.4:port/events end-point.  The required fields are:
+The required fields for a submission are:
 
 |Field Name | Purpose                                                   |
 |-----------|-----------------------------------------------------------|
@@ -65,9 +64,7 @@ to the http://1.2.3.4:port/events end-point.  The required fields are:
 |detail     | Human-readable (expanded) description of the alert-event. |
 |raise      | When this alert should be raised.                         |
 
-Further details are available in the [alert guide](ALERTS.md).
-
-You can see example scripts which submit heartbeat, or other alerts, beneath [examples/](examples/).
+Further details are available in the [alert guide](ALERTS.md) - and you can see some example scripts which submit events, beneath [examples/](examples/).
 
 
 ## Notifications
@@ -76,14 +73,12 @@ The web-based user-interface lists alerts which are pending, raised, or acknowle
 
 There is no built-in facility for sending text-messages, sending pushover notifications, or similar.  Instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary.
 
-* `purpupurra-notify`
+* `purppura-notify`
    * Executed the _first_ time an alert is raised.
 * `purppura-renotify`
    * Executed once per minute while an alert continues to be raised.
 
 By moving the notification into an external process you gain the flexibility
-to route alerts to humans in whichever way seems best to you.
-
-You can see sample notification-scripts which push to pushover beneath [notifiers/](notifiers/).
+to route alerts to humans in whichever way seems best to you.  You can find sample notification-scripts which push to pushover beneath [notifiers/](notifiers/).
 
 **NOTE**: Remember that you need to add these scripts somewhere upon your `PATH`.
