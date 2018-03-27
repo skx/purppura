@@ -67,6 +67,8 @@ to the http://1.2.3.4:port/events end-point.  The required fields are:
 
 Further details are available in the [alert guide](ALERTS.md).
 
+You can see example scripts which submit heartbeat, or other alerts, beneath [examples/](examples/).
+
 
 ## Notifications
 

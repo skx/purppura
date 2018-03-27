@@ -121,3 +121,7 @@ The alerting is divided into two types:
 * A repeated notification.
 
 This behaviour is useful if you're using an external service to deliver your alert-messages.  For example I use the [pushover](http://pushover.net/) service, and there is a facility there to repeat the notifications until they are read with the mobile phone application.  If I raise the alert once there, the phone will beep every minute - so there is no need to repeatedly send the message.
+
+## Sample Clients
+
+You can find clients for submitting events beneath [examples/](examples/).

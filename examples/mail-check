@@ -1,0 +1,106 @@
+#!/usr/bin/ruby
+#
+# Check for unread-email in the folders listed, alert if any are found.
+#
+
+require 'net/http'
+require 'json'
+
+#
+# The alerts we'll raise
+#
+alerts = []
+
+#
+# The folders we care about
+#
+folders = [ 'dns-api-com', 'dhcp-io' ]
+
+
+
+
+def count_unread( pattern, verbose )
+
+  count = 0
+
+  #
+  # Find the folder
+  #
+  Dir.glob( "/home/steve/Maildir/#{pattern}" ).each do |d|
+    if ( File.directory?( d + "/new" ) )
+      Dir.glob( d + "/new/*" ).each do |f|
+        count += 1
+      end
+    end
+  end
+
+  if ( count > 0 )
+      puts( "Folder contains unread mail: #{pattern}" ) if ( verbose )
+  end
+  count
+end
+
+
+#
+# Entry-Point to our script
+#
+VERBOSE = ARGV.count > 0
+
+#
+# Test each folder, via the glob-pattern.
+#
+folders.each do |pattern|
+
+  #
+  # Count the unread-messages in the folder(s)
+  #
+  count = count_unread( pattern, VERBOSE )
+
+  #
+  #  Build up a temporary alert
+  #
+  h = Hash.new
+  h['id'] = "maildir-#{pattern}.once"
+  h['subject'] = "Unread mail found in #{pattern}"
+  h['detail'] = "There were #{count} unread emails found in #{pattern}"
+
+  if ( count > 0 )
+    h['raise'] = "now"
+  else
+    h['raise'] = "clear"
+  end
+
+  alerts << h
+end
+
+
+#
+#  Now we send the alerts, all at once.
+#
+
+
+# The URL we'll submit to
+uri  = URI("http://localhost:8080/events")
+
+# The HTTP-object.
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true if ( uri.scheme =~ /^https/)
+
+# The request
+req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json'})
+
+# Ensure the request-body has our JSON-payload
+req.body = alerts.to_json
+
+# Make the request
+res = http.request(req)
+
+# If successful all is OK
+if res.is_a?(Net::HTTPSuccess)
+  exit(0)
+else
+
+  # show the error
+  puts res.body
+  exit(1)
+end
