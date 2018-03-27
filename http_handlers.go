@@ -220,7 +220,7 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	inFile, err := os.Open(CONFIG.UserFile)
 	if err != nil {
-		http.Error(res, err.Error(), 400)
+		http.Error(response, err.Error(), 400)
 		return
 	}
 	defer inFile.Close()
