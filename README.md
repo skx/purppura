@@ -28,10 +28,9 @@ Once installed you'll be able to launch the server like so:
       Enter Password for user steve: secret
       ~ $
 
-Now you should be able to login to the web interface with username `steve` and password `secret`.
+You should now be able to login to the web interface with username `steve` and password `secret`.
 
 The usernames and passwords which will grant access to the web interface are stored inside the same SQLite file that is used to hold event-details.
-
 
 
 # Alerts
@@ -68,16 +67,21 @@ to the http://1.2.3.4:port/events end-point.  The required fields are:
 
 Further details are available in the [alert guide](ALERTS.md).
 
+
 ## Notifications
 
 The web-based user-interface lists alerts which are pending, raised, or acknowledges.  While this is useful it isn't going to wake anybody up if something fails overnight, so we have to allow notification via SMS, WhatsApp, etc.
 
 There is no built-in facility for sending text-messages, sending pushover notifications, or similar.  Instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary.
 
-* `purple-notify`
+* `purpupurra-notify`
    * Executed the _first_ time an alert is raised.
-* `purple-renotify`
+* `purppura-renotify`
    * Executed once per minute while an alert continues to be raised.
 
 By moving the notification into an external process you gain the flexibility
 to route alerts to humans in whichever way seems best to you.
+
+You can see sample notification-scripts which push to pushover beneath [notifiers/](notifiers/).
+
+**NOTE**: Remember that you need to add these scripts somewhere upon your `PATH`.
