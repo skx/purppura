@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strconv"
 	"testing"
 )
 
@@ -251,16 +252,93 @@ func TestUpdatingAlert(t *testing.T) {
 	// Create a fake database
 	FakeDB()
 
-	// Add an alert
-	// Get all alerts - to find the id
+	// Create a new alert.
+	var tmp Alert
+	tmp.Source = "127.0.0.1"
+	tmp.ID = "heartbeat"
+	tmp.Raise = "+55m"
+	tmp.Detail = "This is some detail"
+	tmp.Subject = "Re: your mail"
+
+	// Add that event
+	//
+	err := addEvent(tmp)
+	if err != nil {
+		t.Errorf("Error adding event")
+	}
+
+	//
+	// Retrieve the update alerts and we should see it.
+	//
+	alerts, err := Alerts()
+	if err != nil {
+		t.Errorf("Error fetching updated alerts")
+	}
+	if len(alerts) != 1 {
+		t.Errorf("Expected one alert, but found a different number")
+	}
+
+	// Now we know the ID.
+	id := alerts[0].ID
+	i, _ := strconv.ParseInt(id, 10, 64)
+
+	// We should be able to lookup that alert
+	data, err := GetAlert(int(i))
+
+	if err != nil {
+		t.Errorf("Error fetching alert by ID")
+	}
+	if data.Subject != tmp.Subject {
+		t.Errorf("Retrieving by ID resulted in a different subject!")
+	}
+
 	// change the state : ack
 	// check that worked
+	AckEvent(id)
+	data, err = GetAlert(int(i))
+	if err != nil {
+		t.Errorf("Error fetching alert by ID")
+	}
+	if data.Status != "acknowledged" {
+		t.Errorf("Changing state failed")
+	}
+
 	// change the state : raise
 	// check that worked
+	RaiseEvent(id)
+	data, err = GetAlert(int(i))
+	if err != nil {
+		t.Errorf("Error fetching alert by ID")
+	}
+	if data.Status != "raised" {
+		t.Errorf("Changing state failed")
+	}
+
 	// change the state : clear
 	// check that worked
+	ClearEvent(id)
+	data, err = GetAlert(int(i))
+	if err != nil {
+		t.Errorf("Error fetching alert by ID")
+	}
+	if data.Status != "cleared" {
+		t.Errorf("Changing state failed")
+	}
+
 	// reap
+	err = Reap()
+	if err != nil {
+		t.Errorf("Reaping failed")
+	}
+
 	// check it is gone
+	alerts, err = Alerts()
+	if err != nil {
+		t.Errorf("Error fetching updated alerts")
+	}
+	if len(alerts) != 0 {
+		t.Errorf("Expected no alerts, but found a different number")
+	}
 
 	// Cleanup here because otherwise later tests will
 	// see an active/valid DB-handle.
