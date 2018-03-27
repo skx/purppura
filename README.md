@@ -35,7 +35,7 @@ The usernames and passwords which will grant access to the web interface are sto
 
 # Alerts
 
-Alerts are submitted by making a HTTP POST-request to the purple-server, with a JSON-payload of a [number of fields](ALERTS.md).
+Alerts are submitted by making a HTTP POST-request to the server, with a JSON-payload of a [number of fields](ALERTS.md).
 
 When a new POST request is received it will be transformed into an alert:
 
