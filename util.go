@@ -24,7 +24,7 @@ func Str2Unix(data string) (int64, error) {
 		return now, nil
 	}
 
-	re := regexp.MustCompile("([0-9]+)([hHmMsS])$")
+	re := regexp.MustCompile("^\\+?([0-9]+)([hHmMsS])$")
 	out := re.FindStringSubmatch(data)
 
 	res := now
