@@ -138,8 +138,8 @@ func main() {
 	db := flag.String("database", "alerts.db", "The SQLite3 database to use")
 	host := flag.String("host", "localhost", "The host to listen upon")
 	port := flag.Int("port", 8080, "The port to listen upon")
-	notify := flag.String("notify-binary", "purple-notify", "The binary to execute to issue notifications")
-	renotify := flag.String("renotify-binary", "purple-renotify", "The binary to execute for notification reminders")
+	notify := flag.String("notify-binary", "purppura-notify", "The binary to execute to issue notifications")
+	renotify := flag.String("renotify-binary", "purppura-renotify", "The binary to execute for notification reminders")
 
 	//
 	// User-options
