@@ -12,17 +12,14 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gorilla/mux"
-	"golang.org/x/crypto/bcrypt"
 )
 
 //
@@ -218,49 +215,19 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Open our list of users/passwords
 	//
-	inFile, err := os.Open(CONFIG.UserFile)
+	valid, err := validateUser(name, pass)
 	if err != nil {
 		http.Error(response, err.Error(), 400)
 		return
 	}
-	defer inFile.Close()
 
 	//
-	// Process line by line
+	// If this succeeded then let the login succeed.
 	//
-	scanner := bufio.NewScanner(inFile)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-
-		//
-		// The user/password are space-separated
-		//
-		fields := strings.Fields(scanner.Text())
-
-		//
-		// If we got two fields then we can test them
-		//
-		if len(fields) == 2 {
-
-			//
-			// The username + hash from the field-splitting
-			//
-			user := fields[0]
-			hash := fields[1]
-
-			//
-			// Do we have a match - if so set the session
-			// and redirect to the server root
-			//
-			if user == name {
-				err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
-				if err == nil {
-					setSession(name, response)
-					http.Redirect(response, request, "/", 302)
-					return
-				}
-			}
-		}
+	if valid {
+		setSession(name, response)
+		http.Redirect(response, request, "/", 302)
+		return
 	}
 
 	//

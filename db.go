@@ -56,7 +56,13 @@ func SetupDB(path string) error {
         notified_at int default '0',
         subject text not null,
         detail  text not null
-       )
+       );
+
+       CREATE TABLE users (
+           i INTEGER PRIMARY KEY,
+         username char(40),
+         password char(40)
+       );
 	`
 
 	//
@@ -467,5 +473,75 @@ func Warp() error {
 		return err
 	}
 
+	return nil
+}
+
+func validateUser(username string, password string) (bool, error) {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return false, errors.New("SetupDB not called")
+	}
+
+	var count int
+	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username=? AND password=?", username, password)
+	err := row.Scan(&count)
+	if err != nil {
+		return false, err
+	}
+
+	if count >= 1 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func addUser(username string, password string) error {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return errors.New("SetupDB not called")
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	stmt, err := tx.Prepare("INSERT INTO users( username, password ) VALUES( ?, ? )")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	stmt.Exec(username, password)
+	tx.Commit()
+
+	return nil
+}
+
+func delUser(username string) error {
+
+	//
+	// Ensure we have a DB-handle
+	//
+	if db == nil {
+		return errors.New("SetupDB not called")
+	}
+
+	//
+	// Mark this as raised
+	//
+	sql, err := db.Prepare("DELETE FROM users WHERE username=?")
+	if err != nil {
+		return err
+	}
+	_, err = sql.Exec(username)
+	if err != nil {
+		return err
+	}
 	return nil
 }

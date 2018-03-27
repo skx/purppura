@@ -22,16 +22,15 @@ Once installed you'll be able to launch the server like so:
       ~ $ purppura
       Listening on http://localhost:8080/
 
-However **note** that the server presents a web interface which requires a login, so you'll need to configure a list of usernames/passwords.  You can use the main binary to hash a password, like so:
+**NOTE** however that the server presents a web interface which requires a login, so you'll need to add at least one user to the system.  This can be done while the server is running, or before you launch it:
 
-      ~ $ purppura -hash secret
-      $2a$14$YeIaqlAqC2Qk6BGcF8DgueJTvLQxqw2iwsQh4qGSZg1ZFGUZVzw7K
+      ~ $ purppura -user-add steve
+      Enter Password for user steve: secret
+      ~ $
 
-By default the file is `./users` is assumed to contain a list of valid usernames & password-hashes, but this can be specified via the command-line flag `-auth-file`.   Once you have your hash you should edit the file `users` to read:
+Now you should be able to login to the web interface with username `steve` and password `secret`.
 
-      username $2a$14$YeIaqlAqC2Qk6BGcF8DgueJTvLQxqw2iwsQh4qGSZg1ZFGUZVzw7K
-
-Now you should be able to login to the web interface with username `username` and password `secret`.
+The usernames and passwords which will grant access to the web interface are stored inside the same SQLite file that is used to hold event-details.
 
 
 

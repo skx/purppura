@@ -13,16 +13,17 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/robfig/cron"
-	"golang.org/x/crypto/bcrypt"
 )
 
 //
@@ -71,7 +72,6 @@ type Alert struct {
 // Configuration-options, as set by the command-line flags.
 //
 type Config struct {
-	UserFile       string
 	NotifyBinary   string
 	ReNotifyBinary string
 }
@@ -133,27 +133,25 @@ func ProcessAlerts() {
 func main() {
 
 	//
-	// Command-line options.
+	// Command-line options - database
 	//
 	db := flag.String("database", "alerts.db", "The SQLite3 database to use")
 	host := flag.String("host", "localhost", "The host to listen upon")
-
-	hash := flag.String("hash", "", "Hash the specified plaintext password")
 	port := flag.Int("port", 8080, "The port to listen upon")
-
-	users := flag.String("auth-file", "users", "The username/password file to authentication against")
 	notify := flag.String("notify-binary", "purple-notify", "The binary to execute to issue notifications")
 	renotify := flag.String("renotify-binary", "purple-renotify", "The binary to execute for notification reminders")
+
+	//
+	// User-options
+	//
+	userAdd := flag.String("user-add", "", "Add the specified user.")
+	userDel := flag.String("user-delete", "", "Remove the specified user.")
+
 	flag.Parse()
 
-	if *hash != "" {
-		pBytes, _ := bcrypt.GenerateFromPassword([]byte(*hash), 14)
-		pCrypt := string(pBytes)
-		fmt.Printf("%s\n", pCrypt)
-		os.Exit(0)
-	}
-
-	CONFIG.UserFile = *users
+	//
+	// Setup our configuration-options.
+	//
 	CONFIG.NotifyBinary = *notify
 	CONFIG.ReNotifyBinary = *renotify
 
@@ -161,6 +159,40 @@ func main() {
 	// Setup our database
 	//
 	SetupDB(*db)
+
+	//
+	// Are we adding a user?
+	//
+	if *userAdd != "" {
+		//
+		// Add the user.
+		//
+
+		reader := bufio.NewReader(os.Stdin)
+
+		fmt.Printf("Enter Password for user %s: ", *userAdd)
+		pass, _ := reader.ReadString('\n')
+		pass = strings.TrimSpace(pass)
+		err := addUser(*userAdd, pass)
+		if err != nil {
+			fmt.Printf("Error %s", err.Error())
+		}
+		os.Exit(0)
+	}
+
+	//
+	// Deleting a user?
+	//
+	if *userDel != "" {
+		//
+		// Delete the user.
+		//
+		err := delUser(*userDel)
+		if err != nil {
+			fmt.Printf("Error %s", err.Error())
+		}
+		os.Exit(0)
+	}
 
 	//
 	// Create a cron scheduler
