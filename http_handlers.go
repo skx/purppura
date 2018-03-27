@@ -15,6 +15,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -32,13 +33,33 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	//
 	// We'll read JSON from STDIN.
 	//
-	decoder := json.NewDecoder(request.Body)
+	// We do this manually because we want to see if we're
+	// getting a single event:
+	//
+	//  {id:"blah",...}
+	//
+	// Or an array of events:
+	//
+	//  [{id:"blah", ..},{id:"more-blah"..}
+	//
+	content, _ := ioutil.ReadAll(request.Body)
 
 	//
-	// We parse into a new structure.
+	// We parse into a new structure, or an array of them.
 	//
-	var t Alert
-	err := decoder.Decode(&t)
+	var single Alert
+	var multi []Alert
+
+	var err error
+
+	//
+	// Decode - into the array, or single entry, as appropriate.
+	//
+	if strings.HasPrefix(string(content), "[") {
+		err = json.Unmarshal(content, &multi)
+	} else {
+		err = json.Unmarshal(content, &single)
+	}
 
 	if err != nil {
 		panic(err)
@@ -53,16 +74,32 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	}
 
 	//
-	// Update the structure with the source
+	// Did we get multiple entries?
 	//
-	t.Source = ip
+	if len(multi) > 0 {
 
-	//
-	// Add the event
-	//
-	err = addEvent(t)
-	if err != nil {
-		panic(err)
+		//
+		// For each one - add it
+		//
+		for _, ent := range multi {
+
+			ent.Source = ip
+			err = addEvent(ent)
+			if err != nil {
+				panic(err)
+			}
+		}
+	} else {
+
+		//
+		// Otherwise add the single event.
+		//
+		fmt.Printf("Received a single event\n")
+		single.Source = ip
+		err = addEvent(single)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	//

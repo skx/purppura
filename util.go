@@ -20,7 +20,7 @@ func Str2Unix(data string) (int64, error) {
 		return 0, nil
 	}
 
-	if data == "raise" {
+	if data == "now" {
 		return now, nil
 	}
 
