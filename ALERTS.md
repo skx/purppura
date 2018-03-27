@@ -11,7 +11,9 @@ Example alert IDs might be `disk-full`, `heartbeat`, `unread-mail-foo.com` and `
 ## Submitting Alerts
 
 Submissions are expected to be JSON-encoded POST payloads, sent
-to the http://1.2.3.4:port/events end-point.  The required fields are:
+to the http://1.2.3.4:port/events end-point.
+
+The required fields are:
 
 |Field Name | Purpose                                                   |
 |-----------|-----------------------------------------------------------|
@@ -30,7 +32,7 @@ As an example the following is a heartbeat alert.  Five minutes after the last u
        "raise"   : "+5m",
      }
 
-Before the `5m` timeout has been reached the alert will be in the `pending` state and will be visible in the web user-interface.  Five minutes after the last submission the alert will be moved into the `raised` state, and a notification will be generated.
+Before the `+5m` timeout has been reached the alert will be in the `pending` state and will be visible in the web user-interface.  Five minutes after the last submission the alert will be moved into the `raised` state, and a notification will be generated.
 
 As you might expect the `raise` field is pretty significant.  Permissable values include:
 
@@ -57,7 +59,7 @@ To raise an alert send a JSON message with the `raise` field set to `now`:
        "raise"   : "now",
      }
 
-This alert will be immediately raised, and the notifications will repeat until the alert is cleared, or acknowledged via the the web user-interface (or an update from the submitter).
+This alert will be immediately raised, and the notifications will repeat until the alert is cleared, or acknowledged via the the web user-interface (or an update is received from the submitter).
 
 
 ## Explicitly Clearing Alerts
@@ -106,7 +108,7 @@ For example you could send, every minute, a submission like this:
        "raise"   : "+5m",
        }
 
-Assuming that this update is sent every 60 seconds the alert will raise three minutes after the last update.  That would require the host was down for three minutes, or that three updates were lost en route.
+Assuming that this update is sent every 60 seconds the alert will raise five minutes after the last update.  That would require the host was down for five minutes, or that five updates were lost en route.
 
 This works because the `raise` time is updated every time the incoming alert is received.  So when the first update is seen the `+5m` field might expand to the absolute time `Tue Jun 14 09:20:21 EEST 2016`, then a minute later the field will change to `Tue Jun 14 09:21:21 EEST 2016`.  The time at which the alert will raise will be pushed back a minute on each update, unless these updates cease.
 
@@ -118,9 +120,14 @@ By default notifications are repeated for each alert in the raised-state.  These
 The alerting is divided into two types:
 
 * An initial notification.
+  * This is issued once.
 * A repeated notification.
+  * These repeat notifications are issued once per minute, indefinitely.
 
 This behaviour is useful if you're using an external service to deliver your alert-messages.  For example I use the [pushover](http://pushover.net/) service, and there is a facility there to repeat the notifications until they are read with the mobile phone application.  If I raise the alert once there, the phone will beep every minute - so there is no need to repeatedly send the message.
+
+In my case what I do is configure the server to use a script to raise the event the first time, and the script which _should_ repeat the notifications is a NOP.
+
 
 ## Sample Clients
 
