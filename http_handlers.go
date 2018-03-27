@@ -42,15 +42,18 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	//
 	//  [{id:"blah", ..},{id:"more-blah"..}
 	//
-	content, _ := ioutil.ReadAll(request.Body)
+	content, err := ioutil.ReadAll(request.Body)
+
+	if err != nil {
+		http.Error(res, err.Error(), 400)
+		return
+	}
 
 	//
 	// We parse into a new structure, or an array of them.
 	//
 	var single Alert
 	var multi []Alert
-
-	var err error
 
 	//
 	// Decode - into the array, or single entry, as appropriate.
@@ -62,7 +65,8 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	}
 
 	if err != nil {
-		panic(err)
+		http.Error(res, err.Error(), 400)
+		return
 	}
 
 	//
@@ -70,7 +74,8 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	//
 	ip, _, err := net.SplitHostPort(request.RemoteAddr)
 	if err != nil {
-		panic(err)
+		http.Error(res, err.Error(), 400)
+		return
 	}
 
 	//
@@ -86,7 +91,8 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 			ent.Source = ip
 			err = addEvent(ent)
 			if err != nil {
-				panic(err)
+				http.Error(res, err.Error(), 400)
+				return
 			}
 		}
 	} else {
@@ -98,7 +104,8 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 		single.Source = ip
 		err = addEvent(single)
 		if err != nil {
-			panic(err)
+			http.Error(res, err.Error(), 400)
+			return
 		}
 	}
 
@@ -213,7 +220,8 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	inFile, err := os.Open(CONFIG.UserFile)
 	if err != nil {
-		panic(err)
+		http.Error(res, err.Error(), 400)
+		return
 	}
 	defer inFile.Close()
 
