@@ -34,6 +34,12 @@ p: bindata.go $(wildcard *.go)
 
 
 #
+# Make our code pretty
+#
+format:
+	goimports -w .
+
+#
 # Run our tests
 #
 test:
