@@ -247,7 +247,7 @@ func logoutHandler(response http.ResponseWriter, request *http.Request) {
 //
 // Get all events as a JSON array.
 //
-// This is used by /purple.js to dynamically update the display.
+// This is used by /purppura.js to dynamically update the display.
 //
 func eventsHandler(response http.ResponseWriter, request *http.Request) {
 
@@ -294,5 +294,5 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 // serve our JS
 //
 func jsPage(response http.ResponseWriter, request *http.Request) {
-	serveResource(response, request, "data/purple.js")
+	serveResource(response, request, "data/purppura.js")
 }

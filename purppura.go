@@ -214,7 +214,7 @@ func main() {
 	//
 	var router = mux.NewRouter()
 	router.HandleFunc("/", indexPageHandler)
-	router.HandleFunc("/purple.js", jsPage).Methods("GET")
+	router.HandleFunc("/purppura.js", jsPage).Methods("GET")
 
 	router.HandleFunc("/login", loginForm).Methods("GET")
 	router.HandleFunc("/login", loginHandler).Methods("POST")
