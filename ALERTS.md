@@ -94,7 +94,7 @@ With code like this you can send an alert which will either have the raise field
 
 ## Heartbeat Alerts
 
-Heartbeat alerts are well-documented, instead of sending simple "raise" or "clear" events you instead set a relative time in your `raise` field.
+Heartbeat alerts have already been documented, but in brief instead of sending simple "raise" or "clear" events you instead set a relative time in your `raise` field.
 
 For example you could send, every minute, a submission like this:
 
@@ -103,7 +103,7 @@ For example you could send, every minute, a submission like this:
        "id"      : "heartbeat"
        "subject" : "example.my.flat is down.",
        "detail"  : "<p>The heartbeat wasn't received for example.my.flat.</p>",
-       "raise"   : "+3m",
+       "raise"   : "+5m",
        }
 
 Assuming that this update is sent every 60 seconds the alert will raise three minutes after the last update.  That would require the host was down for three minutes, or that three updates were lost en route.
