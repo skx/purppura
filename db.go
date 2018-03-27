@@ -348,7 +348,7 @@ func Notify() error {
 		//
 		data, err := GetAlert(i)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		//
@@ -413,7 +413,7 @@ func ReNotify() error {
 		//
 		data, err := GetAlert(i)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		//

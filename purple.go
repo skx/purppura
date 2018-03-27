@@ -91,7 +91,8 @@ func ProcessAlerts() {
 	//
 	err := Reap()
 	if err != nil {
-		panic(err)
+		fmt.Printf("\tError reaping - %s\n", err.Error())
+		return
 	}
 
 	//
@@ -102,7 +103,8 @@ func ProcessAlerts() {
 	//
 	err = Warp()
 	if err != nil {
-		panic(err)
+		fmt.Printf("\tError warping time - %s\n", err.Error())
+		return
 	}
 
 	//
@@ -110,7 +112,8 @@ func ProcessAlerts() {
 	//
 	err = Notify()
 	if err != nil {
-		panic(err)
+		fmt.Printf("\tError notifying - %s\n", err.Error())
+		return
 	}
 
 	//
@@ -118,7 +121,8 @@ func ProcessAlerts() {
 	//
 	err = ReNotify()
 	if err != nil {
-		panic(err)
+		fmt.Printf("\tError repeating old notification - %s\n", err.Error())
+		return
 	}
 }
 
@@ -205,6 +209,4 @@ func main() {
 	if err != nil {
 		fmt.Printf("\nError: %s\n", err.Error())
 	}
-
-	//http.ListenAndServe(bind, nil)
 }
