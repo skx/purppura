@@ -1,6 +1,6 @@
 # Purppura
 
-Purppura (Finnish for "purple") is a port to [golang](https://golang.org/) of the [purple-alert](https://github.com/skx/purple) server.
+Purppura is a port to [golang](https://golang.org/) of the [purple-alert](https://github.com/skx/purple) server.  (`Purppura` is Finnish for `purple`.)
 
 The purple-alert software is an alert manager which allows the centralised collection and distribution of "alerts".
 
