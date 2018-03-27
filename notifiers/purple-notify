@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use JSON;
+
+my $input = "";
+while (my $line = <>) {
+      $input .= $line;
+  }
+
+print "PARSING: $input\n";
+
+my $obj = decode_json( $input );
+
+my $subject = $obj->{'Subject'};
+`notify-send --urgency=critical "Purple" "$subject"`;
