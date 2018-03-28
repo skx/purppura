@@ -22,6 +22,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func RemoteIP(request *http.Request) string {
+
+	//
+	// Get the X-Forwarded-For header, if present.
+	//
+	xForwardedFor := request.Header.Get("X-Forwarded-For")
+
+	//
+	// No forwarded IP?  Then use the remote address directly.
+	//
+	if xForwardedFor == "" {
+		ip, _, _ := net.SplitHostPort(request.RemoteAddr)
+		return ip
+	}
+
+	entries := strings.Split(xForwardedFor, ",")
+	address := strings.TrimSpace(entries[0])
+	return (address)
+}
+
 //
 // Parse the incoming POST request.
 //
@@ -69,11 +89,7 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	//
 	// Get the source of the submission.
 	//
-	ip, _, err := net.SplitHostPort(request.RemoteAddr)
-	if err != nil {
-		http.Error(res, err.Error(), 400)
-		return
-	}
+	ip := RemoteIP(request)
 
 	//
 	// Did we get multiple entries?
