@@ -67,7 +67,8 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	}
 
 	//
-	// We parse into a new structure, or an array of them.
+	// The incoming JSON might contain a single entry, or
+	// an array of entries.
 	//
 	var single Alert
 	var multi []Alert
@@ -101,8 +102,16 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 		//
 		for _, ent := range multi {
 
+			//
+			// Ensure the alert has the correct source.
+			//
 			ent.Source = ip
+
+			//
+			// Add it.
+			//
 			err = addEvent(ent)
+
 			if err != nil {
 				http.Error(res, err.Error(), 400)
 				return
@@ -111,11 +120,15 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	} else {
 
 		//
-		// Otherwise add the single event.
+		// Ensure the alert has the correct source.
 		//
-		fmt.Printf("Received a single event\n")
 		single.Source = ip
+
+		//
+		// Add it.
+		//
 		err = addEvent(single)
+
 		if err != nil {
 			http.Error(res, err.Error(), 400)
 			return
@@ -276,14 +289,23 @@ func eventsHandler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
+	//
+	// Get all the alerts, and their states.
+	//
 	results, err := Alerts()
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	//
+	// Ensure that we send a suitable content-type.
+	//
 	response.Header().Set("Content-Type", "application/json")
 
+	//
+	// Output the alerts.
+	//
 	if len(results) > 0 {
 		out, _ := json.Marshal(results)
 		fmt.Fprintf(response, "%s", out)

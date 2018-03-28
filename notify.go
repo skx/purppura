@@ -38,12 +38,18 @@ func ExecWithAlert(command string, event Alert) error {
 
 }
 
+//
+// Send a notification the first time an alert is raised.
+//
 func NotifyAlert(event Alert) error {
 	fmt.Printf("Notifying for new event %s\n", event.ID)
 
 	return (ExecWithAlert(CONFIG.NotifyBinary, event))
 }
 
+//
+// Send a notification that an alert continues to be raised.
+//
 func ReNotifyAlert(event Alert) error {
 	fmt.Printf("Repeating notification for outstanding event %s\n", event.ID)
 	return (ExecWithAlert(CONFIG.ReNotifyBinary, event))
