@@ -11,6 +11,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 //
@@ -60,8 +61,8 @@ func SetupDB(path string) error {
 
        CREATE TABLE users (
            i INTEGER PRIMARY KEY,
-         username char(40),
-         password char(40)
+         username char(65),
+         password char(65)
        );
 	`
 
@@ -476,6 +477,11 @@ func Warp() error {
 	return nil
 }
 
+//
+// Validate a username/password pair against the database.
+//
+// Passwords are hashed with bcrypt.
+//
 func validateUser(username string, password string) (bool, error) {
 
 	//
@@ -485,17 +491,23 @@ func validateUser(username string, password string) (bool, error) {
 		return false, errors.New("SetupDB not called")
 	}
 
-	var count int
-	row := db.QueryRow("SELECT COUNT(*) FROM users WHERE username=? AND password=?", username, password)
-	err := row.Scan(&count)
+	var hashed string
+	row := db.QueryRow("SELECT password FROM users WHERE username=?", username)
+	err := row.Scan(&hashed)
 	if err != nil {
-		return false, err
+		if err != sql.ErrNoRows {
+			return false, err
+		}
 	}
 
-	if count >= 1 {
-		return true, nil
+	//
+	// Now we have a hashed password, so we need to compare it.
+	//
+	err = bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
+	if err != nil {
+		return false, nil
 	}
-	return false, nil
+	return true, nil
 }
 
 func addUser(username string, password string) error {
@@ -505,6 +517,15 @@ func addUser(username string, password string) error {
 	//
 	if db == nil {
 		return errors.New("SetupDB not called")
+	}
+
+	//
+	// Hash the password, because we don't want to store the plain-text
+	// in the database.
+	//
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	if err != nil {
+		return err
 	}
 
 	tx, err := db.Begin()
@@ -517,7 +538,7 @@ func addUser(username string, password string) error {
 	}
 	defer stmt.Close()
 
-	stmt.Exec(username, password)
+	stmt.Exec(username, string(hash))
 	tx.Commit()
 
 	return nil
