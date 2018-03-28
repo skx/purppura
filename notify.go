@@ -1,6 +1,6 @@
 //
 // This file contains the code to notify users of new/repeating
-// events whcih are outstanding.
+// events which are outstanding.
 //
 
 package main
