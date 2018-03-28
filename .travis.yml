@@ -17,7 +17,7 @@ deploy:
   api_key:
     secure: VRD2UG5dyITufMzBQrTvOOKdpo5kJMXbr4C7atb+Ki//UChmSIW/6MLAaMM4AUi2GBLK15eDP6WqiF6GCFLXnqdQxa2IzD0JwuYPAyI4xjfwh6SXlbaKaDMXBq+0jSLze0/tUXQVjcLP5HQeqKpP9HqlVoMk64X7qAXJmPOUqrUvUqPDBV5TJHaTuo/96YixdkL5XhDRZrRHuNJIItn3MAgYxRDHLrtHshiTyjG70Xr8l4k16VO65fz7ETQ3OqeI7Vtyvgsmxp1TmcnWOK4y3CYghTHZB94JRgDtIqX750/HGRddC32BBxkuLNOkuOV8aTGUrRr23c14ikr86SmWmwLCoNFPIOScB3O5rX2K1EbxXAfwX27Y8r3N92Vu/mGdzlLMyiM3k6qK573JSKZLlbKE28mDVZbV5ebzUlM42K93Ndr9ZnaPDV3rTm2M7Phjmfz6sem5B7VaRnJRW1Vx13SnkeCtiWvpbqmveQuKcrEaRhWZ7OiniKaROJN8iguASvmX+2zQFpXnfgGEJSa0yka38eFuUYh5d+M95Iss6+lksOZHF/fFwK7IsmmlJaMPK2OUOIdYRQkxlusrNMsVS+0I6Ljo0PaYuQ+sQIR9UUtyG1rqejEj5181Bz6GwKOENSc+uSWrdILrhZ6bnHmJG3MoFO5jvg1Ib3v9jZcYwy8=
   file_glob: true
-  file: puppet-summary-*
+  file: purppura-*
   skip_cleanup: true
   on:
     tags: true
