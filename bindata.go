@@ -85,7 +85,7 @@ func dataIndexHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/index.html", size: 4589, mode: os.FileMode(420), modTime: time.Unix(1522175621, 0)}
+	info := bindataFileInfo{name: "data/index.html", size: 4589, mode: os.FileMode(420), modTime: time.Unix(1522230512, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -105,7 +105,7 @@ func dataLoginHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/login.html", size: 4097, mode: os.FileMode(420), modTime: time.Unix(1522140209, 0)}
+	info := bindataFileInfo{name: "data/login.html", size: 4097, mode: os.FileMode(420), modTime: time.Unix(1522140271, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -125,7 +125,7 @@ func dataPurppuraJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/purppura.js", size: 3577, mode: os.FileMode(420), modTime: time.Unix(1522125912, 0)}
+	info := bindataFileInfo{name: "data/purppura.js", size: 3577, mode: os.FileMode(420), modTime: time.Unix(1522237744, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }

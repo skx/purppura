@@ -26,6 +26,10 @@ import (
 	"github.com/robfig/cron"
 )
 
+var (
+	version = "unreleased"
+)
+
 //
 // This structure describes a single event.
 //
@@ -140,6 +144,7 @@ func main() {
 	port := flag.Int("port", 8080, "The port to listen upon")
 	notify := flag.String("notify-binary", "purppura-notify", "The binary to execute to issue notifications")
 	renotify := flag.String("renotify-binary", "purppura-renotify", "The binary to execute for notification reminders")
+	ver := flag.Bool("version", false, "Show our release, and exit")
 
 	//
 	// User-options
@@ -177,6 +182,11 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error %s", err.Error())
 		}
+		os.Exit(0)
+	}
+
+	if *ver {
+		fmt.Printf("purppura %s\n", version)
 		os.Exit(0)
 	}
 
