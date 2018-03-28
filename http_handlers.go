@@ -161,7 +161,7 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	AckEvent(id)
-	http.Redirect(res, req, "/", 302)
+	http.Redirect(res, req, "/#acknowledged", 302)
 
 }
 
@@ -184,7 +184,7 @@ func clearEvent(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	ClearEvent(id)
-	http.Redirect(res, req, "/", 302)
+	http.Redirect(res, req, "/#pending", 302)
 
 }
 
@@ -207,7 +207,7 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	RaiseEvent(id)
-	http.Redirect(res, req, "/", 302)
+	http.Redirect(res, req, "/#raised", 302)
 
 }
 
