@@ -185,12 +185,13 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 //
 // Serve a static-resource
 //
-func serveResource(response http.ResponseWriter, request *http.Request, resource string) {
+func serveResource(response http.ResponseWriter, request *http.Request, resource string, mime string) {
 	tmpl, err := Asset(resource)
 	if err != nil {
 		fmt.Fprintf(response, err.Error())
 		return
 	}
+	response.Header().Set("Content-Type", mime)
 	fmt.Fprintf(response, string(tmpl))
 }
 
@@ -198,7 +199,7 @@ func serveResource(response http.ResponseWriter, request *http.Request, resource
 // Serve the login-form
 //
 func loginForm(response http.ResponseWriter, request *http.Request) {
-	serveResource(response, request, "data/login.html")
+	serveResource(response, request, "data/login.html", "text/html")
 }
 
 //
@@ -287,12 +288,12 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	serveResource(response, request, "data/index.html")
+	serveResource(response, request, "data/index.html", "text/html")
 }
 
 //
 // serve our JS
 //
 func jsPage(response http.ResponseWriter, request *http.Request) {
-	serveResource(response, request, "data/purppura.js")
+	serveResource(response, request, "data/purppura.js", "application/javascript")
 }
