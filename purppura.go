@@ -185,11 +185,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *ver {
-		fmt.Printf("purppura %s\n", version)
-		os.Exit(0)
-	}
-
 	//
 	// Deleting a user?
 	//
@@ -201,6 +196,14 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error %s", err.Error())
 		}
+		os.Exit(0)
+	}
+
+	//
+	// Showing our version number?
+	//
+	if *ver {
+		fmt.Printf("purppura %s\n", version)
 		os.Exit(0)
 	}
 
@@ -242,10 +245,9 @@ func main() {
 	http.Handle("/", router)
 
 	//
-	// Launch our HTTP-server.
+	// Show what we're goign to bind upon.
 	//
 	bind := fmt.Sprintf("%s:%d", *host, *port)
-
 	fmt.Printf("Listening on http://%s/\n", bind)
 
 	//
@@ -254,7 +256,7 @@ func main() {
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 
 	//
-	// Wire up context.
+	// Wire up context (i.e. cookie-based session stuff.)
 	//
 	contextRouter := AddContext(loggedRouter)
 
