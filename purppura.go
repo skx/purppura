@@ -223,6 +223,11 @@ func main() {
 	c.Start()
 
 	//
+	// Configure our secure cookies
+	//
+	LoadCookie()
+
+	//
 	// Configure our routes.
 	//
 	var router = mux.NewRouter()

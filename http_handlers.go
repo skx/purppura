@@ -27,9 +27,70 @@ import (
 //
 // The secure-cookie object we use.
 //
-var cookieHandler = securecookie.New(
-	securecookie.GenerateRandomKey(64),
-	securecookie.GenerateRandomKey(32))
+var cookieHandler *securecookie.SecureCookie
+
+//
+// If there is an cookie-file then read it
+//
+func LoadCookie() {
+
+	//
+	// Read the hash
+	//
+	hash, err := ioutil.ReadFile(".cookie.hsh")
+	if err == nil {
+
+		//
+		// If there was no error read the block
+		//
+		block, err := ioutil.ReadFile(".cookie.blk")
+		if err == nil {
+
+			//
+			// And create the cookie-helper.
+			//
+			cookieHandler = securecookie.New(hash, block)
+			return
+		}
+	}
+
+	//
+	// So we either failed to find, or failed to read, the existing
+	// values.  (Perhaps this is the first run.)
+	//
+	// Generate random values.
+	//
+	h := securecookie.GenerateRandomKey(64)
+	b := securecookie.GenerateRandomKey(32)
+
+	//
+	// Now write them out.
+	//
+	// If writing fails then we'll use the values, and this means
+	// when the server restarts authentication will need to to be
+	// repeated by the users.
+	//
+	// (i.e. They'll be logged out.)
+	//
+	err = ioutil.WriteFile(".cookie.hsh", h, 0644)
+	if err != nil {
+		fmt.Printf("WARNING: failed to write .cookie.hsh for persistent secure cookie")
+		cookieHandler = securecookie.New(h, b)
+		return
+	}
+	err = ioutil.WriteFile(".cookie.blk", b, 0644)
+	if err != nil {
+		fmt.Printf("WARNING: failed to write .cookie.blk for persistent secure cookie")
+		cookieHandler = securecookie.New(h, b)
+		return
+	}
+
+	//
+	// Create the cookie, if we got here we've saved the data
+	// for the next restart.
+	//
+	cookieHandler = securecookie.New(h, b)
+}
 
 //
 // Add context to our HTTP-handlers.
