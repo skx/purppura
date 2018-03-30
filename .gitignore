@@ -3,3 +3,5 @@ alerts.db-shm
 alerts.db-wal
 purppura
 purppura-*
+.cookie.blk
+.cookie.hsh
