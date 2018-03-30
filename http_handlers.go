@@ -58,6 +58,17 @@ func AddContext(next http.Handler) http.Handler {
 				//
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
+			} else {
+				//
+				// We failed to decode the cookie.
+				//
+				// Probably it was created with the random-key
+				// of a previous run of the server.  So we
+				// just fall-back to assuming we're not logged
+				// in, and have no context.
+				//
+				next.ServeHTTP(w, r)
+				return
 			}
 		} else {
 			next.ServeHTTP(w, r)
@@ -279,7 +290,7 @@ func serveResource(response http.ResponseWriter, request *http.Request, resource
 // Serve the login-form
 //
 func loginForm(response http.ResponseWriter, request *http.Request) {
-	serveResource(response, request, "data/login.html", "text/html")
+	serveResource(response, request, "data/login.html", "text/html; charset=utf-8")
 }
 
 //
@@ -397,7 +408,7 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	serveResource(response, request, "data/index.html", "text/html")
+	serveResource(response, request, "data/index.html", "text/html; charset=utf-8")
 }
 
 //
