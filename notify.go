@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 //
@@ -19,7 +20,8 @@ import (
 //
 func ExecWithAlert(command string, event Alert) error {
 
-	login := exec.Command(command)
+	cmd := strings.Split(command, " ")
+	login := exec.Command(cmd[0], cmd[1:]...)
 
 	buffer := bytes.Buffer{}
 	input, _ := json.Marshal(event)
@@ -42,7 +44,7 @@ func ExecWithAlert(command string, event Alert) error {
 // Send a notification the first time an alert is raised.
 //
 func NotifyAlert(event Alert) error {
-	fmt.Printf("Notifying for new event %s\n", event.ID)
+	fmt.Printf("Notifying for new event %s - via '%s'\n", event.ID, CONFIG.NotifyBinary)
 
 	return (ExecWithAlert(CONFIG.NotifyBinary, event))
 }
@@ -51,6 +53,6 @@ func NotifyAlert(event Alert) error {
 // Send a notification that an alert continues to be raised.
 //
 func ReNotifyAlert(event Alert) error {
-	fmt.Printf("Repeating notification for outstanding event %s\n", event.ID)
+	fmt.Printf("Repeating notification for outstanding event %s - via '%s'\n", event.ID, CONFIG.NotifyBinary)
 	return (ExecWithAlert(CONFIG.ReNotifyBinary, event))
 }
