@@ -12,6 +12,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -20,8 +21,54 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 )
 
+//
+// The secure-cookie object we use.
+//
+var cookieHandler = securecookie.New(
+	securecookie.GenerateRandomKey(64),
+	securecookie.GenerateRandomKey(32))
+
+//
+// Add context to our HTTP-handlers.
+//
+func AddContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		//
+		// If we have a session-cookie
+		//
+		if cookie, err := r.Cookie("cookie"); err == nil {
+
+			// Make a map
+			cookieValue := make(map[string]string)
+
+			// Decode it.
+			if err = cookieHandler.Decode("cookie", cookie.Value, &cookieValue); err == nil {
+				//
+				// Add the context to the handler, with the
+				// username.
+				//
+				userName := cookieValue["name"]
+				ctx := context.WithValue(r.Context(), "Username", userName)
+				//
+				// And fire it up.
+				//
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+		} else {
+			next.ServeHTTP(w, r)
+			return
+		}
+	})
+}
+
+//
+// Get the remote IP of the request-submitter.
+//
 func RemoteIP(request *http.Request) string {
 
 	//
@@ -149,7 +196,8 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	if !loggedIn(req) {
+	username := req.Context().Value("Username")
+	if username == nil {
 		http.Redirect(res, req, "/login", 302)
 		return
 	}
@@ -169,10 +217,12 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 // Clear an event.
 //
 func clearEvent(res http.ResponseWriter, req *http.Request) {
+
 	//
 	// Ensure the user is logged-in.
 	//
-	if !loggedIn(req) {
+	username := req.Context().Value("Username")
+	if username == nil {
 		http.Redirect(res, req, "/login", 302)
 		return
 	}
@@ -195,7 +245,8 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	if !loggedIn(req) {
+	username := req.Context().Value("Username")
+	if username == nil {
 		http.Redirect(res, req, "/login", 302)
 		return
 	}
@@ -255,7 +306,19 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 	// If this succeeded then let the login succeed.
 	//
 	if valid {
-		setSession(name, response)
+
+		value := map[string]string{
+			"name": name,
+		}
+		if encoded, err := cookieHandler.Encode("cookie", value); err == nil {
+			cookie := &http.Cookie{
+				Name:  "cookie",
+				Value: encoded,
+				Path:  "/",
+			}
+			http.SetCookie(response, cookie)
+		}
+
 		http.Redirect(response, request, "/", 302)
 		return
 	}
@@ -270,7 +333,13 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 // logout handler
 //
 func logoutHandler(response http.ResponseWriter, request *http.Request) {
-	clearSession(response)
+	cookie := &http.Cookie{
+		Name:   "cookie",
+		Value:  "",
+		Path:   "/",
+		MaxAge: -1,
+	}
+	http.SetCookie(response, cookie)
 	http.Redirect(response, request, "/", 302)
 }
 
@@ -284,7 +353,8 @@ func eventsHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	if !loggedIn(request) {
+	username := request.Context().Value("Username")
+	if username == nil {
 		http.Redirect(response, request, "/login", 302)
 		return
 	}
@@ -321,7 +391,8 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	if !loggedIn(request) {
+	username := request.Context().Value("Username")
+	if username == nil {
 		http.Redirect(response, request, "/login", 302)
 		return
 	}

@@ -254,9 +254,14 @@ func main() {
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 
 	//
+	// Wire up context.
+	//
+	contextRouter := AddContext(loggedRouter)
+
+	//
 	// Launch the server.
 	//
-	err := http.ListenAndServe(bind, loggedRouter)
+	err := http.ListenAndServe(bind, contextRouter)
 	if err != nil {
 		fmt.Printf("\nError: %s\n", err.Error())
 	}
