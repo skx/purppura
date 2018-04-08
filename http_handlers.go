@@ -338,7 +338,7 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 // Serve a static-resource
 //
 func serveResource(response http.ResponseWriter, request *http.Request, resource string, mime string) {
-	tmpl, err := Asset(resource)
+	tmpl, err := getResource(resource)
 	if err != nil {
 		fmt.Fprintf(response, err.Error())
 		return

@@ -10,11 +10,11 @@ all: p
 
 
 #
-# Rebuild our bindata.go file from the assets beneath data/
+# Rebuild our static.go file from the assets beneath data/
 #
-bindata.go: data/
-	go-bindata -nomemcopy data/
-	go fmt bindata.go
+static.go: data/
+	implant -input data/ -output static.go
+
 
 
 #
@@ -29,7 +29,7 @@ deps:
 #
 # Build our main binary
 #
-p: bindata.go $(wildcard *.go)
+p: static.go $(wildcard *.go)
 	go build .
 
 
@@ -49,15 +49,11 @@ test:
 # Clean our build
 #
 clean:
-	rm puppet-summary || true
+	rm purppura || true
 
 #
-# Build and serve
+# Generate a HTML coverage-report.
 #
-serve: all
-	./puppet-summary serve -host 0.0.0.0
-
-
 html:
 	go test -coverprofile=cover.out
 	go tool cover -html=cover.out -o foo.html
