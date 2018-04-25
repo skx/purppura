@@ -227,6 +227,25 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 			ent.Source = ip
 
 			//
+			// Ensure we have all the fields we expect
+			//
+			if ent.Subject == "" {
+				http.Error(res, "Missing 'subject' field", 500)
+				return
+			}
+			if ent.ID == "" {
+				http.Error(res, "Missing 'ID' field", 500)
+				return
+			}
+			if ent.Raise == "" {
+				http.Error(res, "Missing 'raise' field", 500)
+				return
+			}
+			if ent.Detail == "" {
+				http.Error(res, "Missing 'detail' field", 500)
+				return
+			}
+
 			// Add it.
 			//
 			err = addEvent(ent)
@@ -242,6 +261,26 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 		// Ensure the alert has the correct source.
 		//
 		single.Source = ip
+
+		//
+		// Ensure we have all the fields we expect
+		//
+		if single.Subject == "" {
+			http.Error(res, "Missing 'subject' field", 500)
+			return
+		}
+		if single.ID == "" {
+			http.Error(res, "Missing 'ID' field", 500)
+			return
+		}
+		if single.Raise == "" {
+			http.Error(res, "Missing 'raise' field", 500)
+			return
+		}
+		if single.Detail == "" {
+			http.Error(res, "Missing 'detail' field", 500)
+			return
+		}
 
 		//
 		// Add it.
