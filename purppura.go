@@ -235,13 +235,19 @@ func main() {
 	router.HandleFunc("/purppura.js", jsPage).Methods("GET")
 
 	router.HandleFunc("/login", loginForm).Methods("GET")
+	router.HandleFunc("/login/", loginForm).Methods("GET")
 	router.HandleFunc("/login", loginHandler).Methods("POST")
+	router.HandleFunc("/login/", loginHandler).Methods("POST")
 
 	router.HandleFunc("/logout", logoutHandler).Methods("GET")
+	router.HandleFunc("/logout/", logoutHandler).Methods("GET")
 	router.HandleFunc("/logout", logoutHandler).Methods("POST")
+	router.HandleFunc("/logout/", logoutHandler).Methods("POST")
 
 	router.HandleFunc("/events", eventsHandler).Methods("GET")
+	router.HandleFunc("/events/", eventsHandler).Methods("GET")
 	router.HandleFunc("/events", parseGhPost).Methods("POST")
+	router.HandleFunc("/events/", parseGhPost).Methods("POST")
 
 	router.HandleFunc("/acknowledge/{id}", ackEvent).Methods("GET")
 	router.HandleFunc("/clear/{id}", clearEvent).Methods("GET")
