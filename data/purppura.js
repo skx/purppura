@@ -27,9 +27,9 @@ function update_alerts()
                 d = new Date( d  );
 
                 // id | source | subject | last notified | action
-                var t = "<tr><td>" + val['ID'] + "</td>";
+                var t = "<tr class=\"click\"><td>" + val['ID'] + "</td>";
                 t += "<td>" + val['Source'] + "</td>";
-                t += "<td class=\"click\">"  + val['Subject'] + "</td>";
+                t += "<td>"  + val['Subject'] + "</td>";
                 t += "<td>" + d  + "</td>";
                 t += "<td><a href=\"/acknowledge/" + (val['ID']) + "\">ack</a>"
                 t += " <a href=\"/clear/" + (val['ID']) + "\">clear</a>"
@@ -45,9 +45,9 @@ function update_alerts()
             if ( status == "acknowledged" ) {
 
                 // id | source | subject | actions
-                var t = "<tr><td>" + val['ID'] + "</td>";
+                var t = "<tr class=\"click\"><td>" + val['ID'] + "</td>";
                 t += "<td>" + val['Source'] + "</td>";
-                t += "<td class=\"click\">" + val['Subject'] + "</td>";
+                t += "<td>" + val['Subject'] + "</td>";
                 t += "<td><a href=\"/raise/" + (val['ID']) + "\">raise</a> <a href=\"/clear/" + (val['ID']) + "\">clear</a></td>"
 
                 // Add the alert
@@ -65,9 +65,9 @@ function update_alerts()
                 d = new Date( d  );
 
                 // id | source | subject | last notified | action
-                var t = "<tr><td>" + val['ID'] + "</td>";
+                var t = "<tr class=\"click\"><td>" + val['ID'] + "</td>";
                 t += "<td>" + val['Source'] + "</td>";
-                t += "<td class=\"click\">" + val['Subject'] + "</td>";
+                t += "<td>" + val['Subject'] + "</td>";
                 t += "<td>" + d  + "</td>";
                 t += "<td><a href=\"/clear/" + (val['ID']) + "\">clear</a></td>"
 

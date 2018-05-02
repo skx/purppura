@@ -34,9 +34,12 @@
       location.hash = $(e.target).attr('href').substr(1);
       });
 
-      // clicking on the subject will toggle the details.
-      $( "table" ).delegate( "tr .click",  "click", function(  ) {
-      $(this).closest('tr').next('tr').toggle();
+      // clicking on the row will toggle the details.
+      $( "table" ).delegate( "tr.click",  "click", function( event ) {
+          var target = $( event.target );
+          if ( ! target.is( "a" ) ) {
+            $(this).closest('tr').next('tr').toggle();
+          }
       });
 
       // Update our alerts every 30 seconds.
