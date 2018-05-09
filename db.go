@@ -122,11 +122,14 @@ func addEvent(data Alert) error {
 		}
 		defer stmt.Close()
 
-		stmt.Exec(data.ID,
+		_, err = stmt.Exec(data.ID,
 			data.Source,
 			data.Subject,
 			data.Detail,
 			raise)
+		if err != nil {
+			return err
+		}
 		tx.Commit()
 
 	} else {
@@ -141,7 +144,10 @@ func addEvent(data Alert) error {
 			return err
 		}
 
-		up.Exec(raise, data.Subject, data.Detail, id)
+		_, err = up.Exec(raise, data.Subject, data.Detail, id)
+		if err != nil {
+			return err
+		}
 		tx.Commit()
 
 	}
