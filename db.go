@@ -11,6 +11,7 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -161,6 +162,11 @@ func addEvent(data Alert) error {
 func Alerts() ([]Alert, error) {
 
 	//
+	// We're going to sanitize body-details.
+	//
+	helper := bluemonday.UGCPolicy()
+
+	//
 	// Our return-result.
 	//
 	var results []Alert
@@ -192,6 +198,11 @@ func Alerts() ([]Alert, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		//
+		// The detail should be sanitized.
+		//
+		tmp.Detail = helper.Sanitize(tmp.Detail)
 
 		//
 		// Add the new record.
