@@ -256,7 +256,7 @@ func main() {
 	http.Handle("/", router)
 
 	//
-	// Show what we're goign to bind upon.
+	// Show what we're going to bind upon.
 	//
 	bind := fmt.Sprintf("%s:%d", *host, *port)
 	fmt.Printf("Listening on http://%s/\n", bind)
@@ -272,10 +272,20 @@ func main() {
 	contextRouter := AddContext(loggedRouter)
 
 	//
+	// We want to make sure we handle timeouts effectively
+	//
+	srv := &http.Server{
+		Addr:         bind,
+		Handler:      contextRouter,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	//
 	// Launch the server.
 	//
-	err := http.ListenAndServe(bind, contextRouter)
+	err := srv.ListenAndServe()
 	if err != nil {
-		fmt.Printf("\nError: %s\n", err.Error())
+		fmt.Printf("\nError starting HTTP server: %s\n", err.Error())
 	}
 }
