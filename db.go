@@ -129,6 +129,7 @@ func addEvent(data Alert) error {
 			data.Detail,
 			raise)
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 		tx.Commit()
@@ -141,7 +142,9 @@ func addEvent(data Alert) error {
 			return err
 		}
 		up, err := tx.Prepare("UPDATE Events SET raise_at=?, subject=?, detail=?  WHERE i=?")
+		defer up.Close()
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 
@@ -280,6 +283,7 @@ func SetEvent(id string, state string) error {
 	if err != nil {
 		return err
 	}
+	stmt.Close()
 	return nil
 }
 
