@@ -8,6 +8,7 @@ package main
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -30,10 +31,12 @@ func SetupDB(path string) error {
 	//
 	// Return if the database already exists.
 	//
-	db, err = sql.Open("sqlite3", path)
+	db, err = sql.Open("sqlite3", "file:"+path+"?cache=shared&mode=rwc")
 	if err != nil {
+		fmt.Printf("SetupDB: sql.Open failed")
 		return err
 	}
+	db.SetMaxOpenConns(1)
 
 	//
 	// Create the table.
@@ -74,6 +77,7 @@ func SetupDB(path string) error {
 	//
 	_, err = db.Exec(sqlStmt)
 	if err != nil {
+		fmt.Printf("SetupDB: db.Exec failed: %s\n", err.Error())
 		return err
 	}
 
@@ -103,12 +107,14 @@ func addEvent(data Alert) error {
 		if err == sql.ErrNoRows {
 			id = -1
 		} else {
+			fmt.Printf("addEvent: db.QueryRow failed")
 			return err
 		}
 	}
 
 	raise, err := Str2Unix(data.Raise)
 	if err != nil {
+		fmt.Printf("addEvent: Str2Unix failed")
 		return err
 	}
 
@@ -129,6 +135,7 @@ func addEvent(data Alert) error {
 			data.Detail,
 			raise)
 		if err != nil {
+			fmt.Printf("addEvent: Inesrt into events failed")
 			tx.Rollback()
 			return err
 		}
@@ -144,6 +151,7 @@ func addEvent(data Alert) error {
 		up, err := tx.Prepare("UPDATE Events SET raise_at=?, subject=?, detail=?  WHERE i=?")
 		defer up.Close()
 		if err != nil {
+			fmt.Printf("addEvent: Update events failed")
 			tx.Rollback()
 			return err
 		}
@@ -186,6 +194,7 @@ func Alerts() ([]Alert, error) {
 	//
 	rows, err := db.Query("SELECT i,source,status,subject,detail,raise_at, notified_at from events")
 	if err != nil {
+		fmt.Printf("Alerts: Select Failed")
 		return nil, err
 	}
 	defer rows.Close()
@@ -242,6 +251,7 @@ func GetAlert(id int) (Alert, error) {
 	//
 	rows, err := db.Query("SELECT i,source,status,subject,detail,raise_at, notified_at from events WHERe i=?", id)
 	if err != nil {
+		fmt.Printf("GetAlert: Select Failed")
 		return result, err
 	}
 	defer rows.Close()
@@ -277,6 +287,7 @@ func SetEvent(id string, state string) error {
 
 	stmt, err := db.Prepare("UPDATE events SET status=? WHERE i=?")
 	if err != nil {
+		fmt.Printf("SetEvent: Update Failed")
 		return err
 	}
 	_, err = stmt.Exec(state, id)
@@ -325,6 +336,7 @@ func Reap() error {
 	//
 	clean, err := db.Prepare("DELETE FROM events WHERE status='cleared' OR raise_at < 1")
 	if err != nil {
+		fmt.Printf("Reap: Delete Failed")
 		return err
 	}
 	defer clean.Close()
@@ -354,6 +366,7 @@ func Notify() error {
 	//
 	rows, err := db.Query("SELECT i FROM events WHERE status='pending' AND ( raise_at < strftime('%s','now') ) AND raise_at > 0")
 	if err != nil {
+		fmt.Printf("Notify: SELECT Failed")
 		return err
 	}
 	defer rows.Close()
@@ -368,6 +381,7 @@ func Notify() error {
 
 		err := rows.Scan(&i)
 		if err != nil {
+			fmt.Printf("Notify: SCAN Failed")
 			return err
 		}
 
@@ -389,11 +403,14 @@ func Notify() error {
 		// Mark this as raised
 		//
 		raised, err := db.Prepare("UPDATE events SET notified_at=?,status=? WHERE i=?")
+		defer raised.Close()
 		if err != nil {
+			fmt.Printf("Notify: UPDATE#1 Failed")
 			return err
 		}
 		_, err = raised.Exec(time.Now().Unix(), "raised", i)
 		if err != nil {
+			fmt.Printf("Notify: UPDATE#2 Failed")
 			return err
 		}
 	}
@@ -419,6 +436,7 @@ func ReNotify() error {
 	//
 	rows, err := db.Query("SELECT i FROM events WHERE status='raised' AND ( abs( notified_at - strftime('%s','now') ) >= 60 )")
 	if err != nil {
+		fmt.Printf("ReNotify: SELECT Failed")
 		return err
 	}
 	defer rows.Close()
@@ -433,6 +451,7 @@ func ReNotify() error {
 
 		err := rows.Scan(&i)
 		if err != nil {
+			fmt.Printf("ReNotify: SCAN Failed")
 			return err
 		}
 
@@ -441,6 +460,7 @@ func ReNotify() error {
 		//
 		data, err := GetAlert(i)
 		if err != nil {
+			fmt.Printf("ReNotify: GetAlert Failed")
 			return err
 		}
 
@@ -455,10 +475,14 @@ func ReNotify() error {
 		//
 		raised, err := db.Prepare("UPDATE events SET notified_at=? WHERE i=?")
 		if err != nil {
+			fmt.Printf("ReNotify: Update #1 Failed")
+
 			return err
 		}
+		defer raised.Close()
 		_, err = raised.Exec(time.Now().Unix(), i)
 		if err != nil {
+			fmt.Printf("ReNotify: Update #2 Failed")
 			return err
 		}
 	}
@@ -486,6 +510,7 @@ func Warp() error {
 	//
 	clean, err := db.Prepare("UPDATE events SET status='pending' WHERE ( raise_at > strftime('%s','now') ) AND raise_at > 0")
 	if err != nil {
+		fmt.Printf("WARP: Update  Failed")
 		return err
 	}
 	defer clean.Close()
@@ -517,6 +542,7 @@ func validateUser(username string, password string) (bool, error) {
 	err := row.Scan(&hashed)
 	if err != nil {
 		if err != sql.ErrNoRows {
+			fmt.Printf("validateUser: SELECT  Failed")
 			return false, err
 		}
 	}
