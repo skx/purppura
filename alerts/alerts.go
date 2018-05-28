@@ -396,7 +396,7 @@ func (s *Alerts) Notify(callback AlertRaise, config string) error {
 		// Invoke the callback
 		//
 		if callback != nil {
-			callback(data, config)
+			go callback(data, config)
 		}
 	}
 	return nil
@@ -475,7 +475,7 @@ func (s *Alerts) Renotify(callback AlertRaise, config string) error {
 		}
 
 		if callback != nil {
-			callback(data, config)
+			go callback(data, config)
 		}
 	}
 	return nil
