@@ -17,16 +17,26 @@ import (
 	"github.com/skx/purppura/alerts"
 )
 
-var (
-	NotifyBinary = "moi"
-)
+//
+// The persistance object for getting/setting alerts.
+//
+var db *alerts.Alerts
 
 //
 // ProcessAlertsScheduler will ensure that our alerts are processed
 // regularly.
 //
 func ProcessAlertsScheduler(cmd string) {
-	for range time.Tick(time.Second * 11) {
+	//
+	// Connect to the database to get our alert(s)
+	//
+	var err error
+	db, err = alerts.New()
+	if err != nil {
+		fmt.Printf("Error creating DB : %s\n", err.Error())
+	}
+
+	for range time.Tick(time.Second * 34) {
 		err := ProcessAlerts(cmd)
 		if err != nil {
 			fmt.Printf("Error Processing Alerts: %s\n", err.Error())
@@ -42,17 +52,9 @@ func ProcessAlerts(cmd string) error {
 	fmt.Printf("Processing events at %s\n", time.Now())
 
 	//
-	// Connect to the database to get our alert(s)
-	//
-	helper, err := alerts.New()
-	if err != nil {
-		return err
-	}
-
-	//
 	// Reap any events which have expired.
 	//
-	err = helper.Reap()
+	err := db.Reap()
 	if err != nil {
 		return err
 	}
@@ -63,7 +65,7 @@ func ProcessAlerts(cmd string) error {
 	// (This is required, although with some restructuring it could
 	// be omitted.)
 	//
-	err = helper.Warp()
+	err = db.Warp()
 	if err != nil {
 		return err
 	}
@@ -71,7 +73,7 @@ func ProcessAlerts(cmd string) error {
 	//
 	// Notify outstanding alerts.
 	//
-	err = helper.Notify(NotifyAlert, cmd)
+	err = db.Notify(NotifyAlert, cmd)
 	if err != nil {
 		return err
 	}
@@ -79,7 +81,7 @@ func ProcessAlerts(cmd string) error {
 	//
 	// Renotify any outstanding alerts
 	//
-	err = helper.Renotify(NotifyAlert, cmd)
+	err = db.Renotify(NotifyAlert, cmd)
 	if err != nil {
 		return err
 	}
@@ -87,7 +89,6 @@ func ProcessAlerts(cmd string) error {
 	//
 	// Close the database-connection now.
 	//
-	helper.Close()
 	fmt.Printf("Processing events complete: %s\n", time.Now())
 	return nil
 }
