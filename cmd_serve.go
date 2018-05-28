@@ -655,6 +655,7 @@ func serve(settings serveCmd) {
 		Addr:         bind,
 		Handler:      contextRouter,
 		ReadTimeout:  5 * time.Second,
+		IdleTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
