@@ -6,15 +6,13 @@
 
 # Purppura
 
-Purppura is a port to [golang](https://golang.org/) of the [purple-alert](https://github.com/skx/purple) server.  (`Purppura` is Finnish for `purple`.)
+Purppura is an alert manager which allows the centralised collection and distribution of "alerts".
 
-The purple-alert software is an alert manager which allows the centralised collection and distribution of "alerts".
-
-For example a trivial heartbeat-style alert might be implemented by having a host send a message every minute with a body containing:
+For example a trivial heartbeat-style alert might be implemented by having a host send a message every minute:
 
 * "Raise an alert if you don't hear from me in 5 minutes".
 
-If that host were to suffer a crash then five minutes after the last submission and alert would be raised, and you would be notified.
+If that host were to suffer a crash then five minutes after the last submission of the event an alert would be raised, and a human would be notified.
 
 
 ## Installation
