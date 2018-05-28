@@ -62,7 +62,7 @@ data = Hash.new
 
 data['detail']  = "<p><tt>#{hostname}</tt> might be down!</p>"
 data['id']      = "heartbeat.once";
-data['raise']   = "+5m";
+data['raise']   = "+10s";
 data['raise']   = "clear" if ( clear )
 data['subject'] = "The heartbeat wasn't sent for #{hostname}"
 

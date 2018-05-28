@@ -25,18 +25,17 @@ To install the software run:
 
 Once installed you'll be able to launch the server like so:
 
-      ~ $ purppura
+      ~ $ purppura serve
       Listening on http://localhost:8080/
 
 **NOTE** however that the server presents a web interface which requires a login, so you'll need to add at least one user to the system.  This can be done while the server is running, or before you launch it:
 
-      ~ $ purppura -user-add steve
-      Enter Password for user steve: secret
+      ~ $ purppura add-user
+      Enter Username: moi
+      Enter Password: kissa
       ~ $
 
-You should now be able to login to the web interface with username `steve` and password `secret`.
-
-The usernames and passwords which will grant access to the web interface are stored inside the same SQLite file that is used to hold event-details.
+You should now be able to login to the web interface with username `steve` and password `secret`.  You can use the `del-user` sub-command to remove the user in the future, or the "list-users" sub-command to see the users.
 
 
 # Alerts

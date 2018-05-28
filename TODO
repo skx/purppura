@@ -1,0 +1,7 @@
+* Recreate tables with autoinc-ids
+
+* Move the test-code.
+
+* Test the notification.
+
+* Rethink logic of notify/renotify

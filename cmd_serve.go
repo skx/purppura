@@ -14,14 +14,21 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 
+	"github.com/google/subcommands"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
+	"github.com/skx/purppura/alert"
+	"github.com/skx/purppura/alerts"
 )
 
 //
@@ -30,8 +37,11 @@ import (
 var cookieHandler *securecookie.SecureCookie
 
 //
-// If there is an cookie-file then read it
+// The persistance object for getting/setting alerts.
 //
+var storage *alerts.Alerts
+
+// LoadCookie loads the persistent cookies from disc, if they exist.
 func LoadCookie() {
 
 	//
@@ -92,9 +102,12 @@ func LoadCookie() {
 	cookieHandler = securecookie.New(h, b)
 }
 
-//
-// Add context to our HTTP-handlers.
-//
+// LoadEvents sets up a new (MySQL) database-connection.
+func LoadEvents() {
+	storage, _ = alerts.New()
+}
+
+// AddContext updates our HTTP-handlers to be username-aware.
 func AddContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -138,9 +151,8 @@ func AddContext(next http.Handler) http.Handler {
 	})
 }
 
-//
-// Get the remote IP of the request-submitter.
-//
+// RemoteIP handles retrieving the remote IP which made a particular
+// HTTP-request, handling reverse-proxies as well as direct connections.
 func RemoteIP(request *http.Request) string {
 
 	//
@@ -161,10 +173,9 @@ func RemoteIP(request *http.Request) string {
 	return (address)
 }
 
-//
-// Parse the incoming POST request.
-//
-func parseGhPost(res http.ResponseWriter, request *http.Request) {
+// alertSubmissionHandler receives alerts from remote sources and
+// stores them in our database.
+func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 
 	//
 	// We'll read JSON from STDIN.
@@ -189,8 +200,8 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 	// The incoming JSON might contain a single entry, or
 	// an array of entries.
 	//
-	var single Alert
-	var multi []Alert
+	var single alert.Alert
+	var multi []alert.Alert
 
 	//
 	// Decode - into the array, or single entry, as appropriate.
@@ -248,7 +259,7 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 
 			// Add it.
 			//
-			err = addEvent(ent)
+			err = storage.AddEvent(ent)
 
 			if err != nil {
 				http.Error(res, err.Error(), 400)
@@ -285,7 +296,7 @@ func parseGhPost(res http.ResponseWriter, request *http.Request) {
 		//
 		// Add it.
 		//
-		err = addEvent(single)
+		err = storage.AddEvent(single)
 
 		if err != nil {
 			http.Error(res, err.Error(), 400)
@@ -319,8 +330,8 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id := vars["id"]
 
-	AckEvent(id)
-	http.Redirect(res, req, "/#acknowledged", 302)
+	storage.AckEvent(id)
+	http.Redirect(res, req, "/", 302)
 
 }
 
@@ -344,8 +355,8 @@ func clearEvent(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id := vars["id"]
 
-	ClearEvent(id)
-	http.Redirect(res, req, "/#pending", 302)
+	storage.ClearEvent(id)
+	http.Redirect(res, req, "/", 302)
 
 }
 
@@ -368,8 +379,8 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	id := vars["id"]
 
-	RaiseEvent(id)
-	http.Redirect(res, req, "/#raised", 302)
+	storage.RaiseEvent(id)
+	http.Redirect(res, req, "/", 302)
 
 }
 
@@ -407,7 +418,7 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Open our list of users/passwords
 	//
-	valid, err := validateUser(name, pass)
+	valid, err := storage.ValidateLogin(name, pass)
 	if err != nil {
 		http.Error(response, err.Error(), 400)
 		return
@@ -473,7 +484,7 @@ func eventsHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Get all the alerts, and their states.
 	//
-	results, err := Alerts()
+	results, err := storage.Alerts()
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusInternalServerError)
 		return
@@ -516,4 +527,133 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 //
 func jsPage(response http.ResponseWriter, request *http.Request) {
 	serveResource(response, request, "data/purppura.js", "application/javascript")
+}
+
+//
+// The options set by our command-line flags.
+//
+type serveCmd struct {
+	bindHost     string
+	bindPort     int
+	notifyBinary string
+}
+
+//
+// Glue
+//
+func (*serveCmd) Name() string     { return "serve" }
+func (*serveCmd) Synopsis() string { return "Launch the HTTP server." }
+func (*serveCmd) Usage() string {
+	return `serve [options]:
+  Launch the HTTP server for receiving and viewing alerts
+`
+}
+
+//
+// Flag setup
+//
+func (p *serveCmd) SetFlags(f *flag.FlagSet) {
+	f.IntVar(&p.bindPort, "port", 8080, "The port to bind upon.")
+	f.StringVar(&p.bindHost, "host", "127.0.0.1", "The IP to listen upon.")
+	f.StringVar(&p.notifyBinary, "notify-binary", "purppura-notify", "The binary to execute to issue notifications")
+}
+
+//
+// Entry-point.
+//
+func (p *serveCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+
+	//
+	// Start the server
+	//
+	serve(*p)
+
+	//
+	// All done.
+	//
+	return subcommands.ExitSuccess
+}
+
+//
+//  Entry-point.
+//
+func serve(settings serveCmd) {
+
+	//
+	// Configure our secure cookies
+	//
+	LoadCookie()
+
+	//
+	// Ensure we have a database for our HTTP-handler
+	//
+	LoadEvents()
+
+	//
+	// Create a scheduler to process our events frequently enough
+	// to be responsive.
+	//
+	go ProcessAlertsScheduler(settings.notifyBinary)
+
+	//
+	// Configure our routes.
+	//
+	var router = mux.NewRouter()
+	router.HandleFunc("/", indexPageHandler)
+	router.HandleFunc("/purppura.js", jsPage).Methods("GET")
+
+	router.HandleFunc("/login", loginForm).Methods("GET")
+	router.HandleFunc("/login/", loginForm).Methods("GET")
+	router.HandleFunc("/login", loginHandler).Methods("POST")
+	router.HandleFunc("/login/", loginHandler).Methods("POST")
+
+	router.HandleFunc("/logout", logoutHandler).Methods("GET")
+	router.HandleFunc("/logout/", logoutHandler).Methods("GET")
+	router.HandleFunc("/logout", logoutHandler).Methods("POST")
+	router.HandleFunc("/logout/", logoutHandler).Methods("POST")
+
+	router.HandleFunc("/events", eventsHandler).Methods("GET")
+	router.HandleFunc("/events/", eventsHandler).Methods("GET")
+	router.HandleFunc("/events", alertSubmissionHandler).Methods("POST")
+	router.HandleFunc("/events/", alertSubmissionHandler).Methods("POST")
+
+	router.HandleFunc("/acknowledge/{id}", ackEvent).Methods("GET")
+	router.HandleFunc("/clear/{id}", clearEvent).Methods("GET")
+	router.HandleFunc("/raise/{id}", raiseEvent).Methods("GET")
+
+	http.Handle("/", router)
+
+	//
+	// Show what we're going to bind upon.
+	//
+	bind := fmt.Sprintf("%s:%d", settings.bindHost, settings.bindPort)
+	fmt.Printf("Listening on http://%s/\n", bind)
+
+	//
+	// Wire up logging.
+	//
+	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
+
+	//
+	// Wire up context (i.e. cookie-based session stuff.)
+	//
+	contextRouter := AddContext(loggedRouter)
+
+	//
+	// We want to make sure we handle timeouts effectively
+	//
+	srv := &http.Server{
+		Addr:         bind,
+		Handler:      contextRouter,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+
+	//
+	// Launch the server.
+	//
+	err := srv.ListenAndServe()
+	if err != nil {
+		fmt.Printf("\nError starting HTTP server: %s\n", err.Error())
+	}
 }
