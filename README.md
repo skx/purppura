@@ -58,7 +58,6 @@ And to delete a user:
       ~ $ purppura del-user
       Enter Username: moi
 
-You can use the `del-user` sub-command to remove the user in the future, or the `list-users` sub-command to see the users which are present.
 
 
 # Alerts
