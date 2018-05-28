@@ -1,18 +1,25 @@
 package alert
 
 //
-// This structure describes a single event.
+// Alert is the structure which is used to describe a single event.
+//
+// Events are submitted to purppura, and when they are raised they
+// become alerts.
 //
 type Alert struct {
 	//
-	// The detail of the event.
+	// The detail of the event, which is formatted as HTML
+	// in the user-interface.  Note that we protect against
+	// XSS attacks via filtering.
 	//
 	Detail string
 
 	//
-	// The ID of the event, e.g. "heartbeat", "backup"
+	// The human-readable ID of the event, such as "heartbeat", "backup",
+	// or "unread-mail-$sender".
 	//
-	// The ID should be unique per-source.
+	// The ID doesn't need to be globally-unique, just unique per
+	// source IP address.
 	//
 	ID string
 
@@ -37,8 +44,16 @@ type Alert struct {
 	// Sigh - these are private fields, used when we output
 	// our list of events to JSON.
 	//
-	Status      string
-	RaiseAt     string
-	NotifiedAt  string
+
+	// Status of the alert
+	Status string
+
+	// When an alert will raise at
+	RaiseAt string
+
+	// Last notification time recorded here.
+	NotifiedAt string
+
+	// Number of times this alert has been notified.
 	NotifyCount string
 }
