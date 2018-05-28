@@ -267,6 +267,7 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 			err = storage.AddEvent(ent)
 
 			if err != nil {
+				fmt.Printf("ERROR - addMulti%s\n", err.Error())
 				http.Error(res, err.Error(), 400)
 				return
 			}
@@ -304,6 +305,7 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 		err = storage.AddEvent(single)
 
 		if err != nil {
+			fmt.Printf("ERROR - AddSingle:%s\n", err.Error())
 			http.Error(res, err.Error(), 400)
 			return
 		}
@@ -654,9 +656,9 @@ func serve(settings serveCmd) {
 	srv := &http.Server{
 		Addr:         bind,
 		Handler:      contextRouter,
-		ReadTimeout:  5 * time.Second,
-		IdleTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  25 * time.Second,
+		IdleTimeout:  25 * time.Second,
+		WriteTimeout: 25 * time.Second,
 	}
 
 	//
