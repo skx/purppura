@@ -1,6 +1,21 @@
 #!/usr/bin/perl
 #
-# This is a simple notifier which will submit events to Pushover
+# This is a simple notifier which will submit events to Pushover.
+#
+# The details will be received as a JSON object piped to STDIN, so
+# we need to read it all, and parse into an object.
+#
+# Once we've done that we'll look to see how many times this alert
+# has been notified about - if it is the first time we'll send the
+# event to pushover, otherwise we will terminate.
+#
+# Using the notification-count allows us to just send the notification
+# once, and rely upon pushover's notification/reminder to let us know.
+#
+# We could decide to send an email the first time, and send a mobile-
+# notification the second time, for example.
+#
+# Or gradually notify more and more people..
 #
 
 use strict;
@@ -17,7 +32,14 @@ my $input = "";
 while (my $line = <>) {
       $input .= $line;
   }
-print $input;
+
+#
+# Show what we received
+#
+print "-" x 80 . "\n";
+print $input . "\n";
+print "=" x 80 . "\n";
+
 #
 # Decode the JSON to an object
 #
@@ -33,6 +55,18 @@ my $subject = $obj->{'Subject'};
 #
 my $msg = $obj->{'Detail'};
 
+#
+# How many times has this been raised already?
+#
+my $count = $obj->{'NotifyCount'};
+
+#
+# We're only going to send messages to PushOver on their first
+# notification, to avoid spamming
+#
+exit if ( $count > 1 );
+
+#
 #
 # Now send to pushover.
 #

@@ -76,14 +76,13 @@ Further details are available in the [alert guide](ALERTS.md) - and you can see 
 
 The web-based user-interface lists alerts which are pending, raised, or acknowledges.  While this is useful it isn't going to wake anybody up if something fails overnight, so we have to allow notification via SMS, WhatsApp, etc.
 
-There is no built-in facility for sending text-messages, sending pushover notifications, or similar.  Instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary.
+There is no built-in facility for sending text-messages, sending pushover notifications, or similar.  Instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary:
 
 * `purppura-notify`
-   * Executed the _first_ time an alert is raised.
-* `purppura-renotify`
-   * Executed once per minute while an alert continues to be raised.
+  * Executed when an alert is raised, or re-raised.
+  * Will receive all the details of the alert as a JSON-object on STDIN
 
 By moving the notification into an external process you gain the flexibility
 to route alerts to humans in whichever way seems best to you.  You can find sample notification-scripts which push to pushover beneath [notifiers/](notifiers/).
 
-**NOTE**: Remember that you need to add these scripts somewhere upon your `PATH`.
+**NOTE**: Remember that you need to add this script somewhere upon your `PATH`.

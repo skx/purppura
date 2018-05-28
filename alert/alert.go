@@ -37,7 +37,8 @@ type Alert struct {
 	// Sigh - these are private fields, used when we output
 	// our list of events to JSON.
 	//
-	Status     string
-	RaiseAt    string
-	NotifiedAt string
+	Status      string
+	RaiseAt     string
+	NotifiedAt  string
+	NotifyCount string
 }

@@ -41,13 +41,16 @@ func ProcessAlerts(cmd string) error {
 
 	fmt.Printf("Processing events at %s\n", time.Now())
 
+	//
+	// Connect to the database to get our alert(s)
+	//
 	helper, err := alerts.New()
 	if err != nil {
 		return err
 	}
 
 	//
-	// Reap expired events.
+	// Reap any events which have expired.
 	//
 	err = helper.Reap()
 	if err != nil {
@@ -73,8 +76,19 @@ func ProcessAlerts(cmd string) error {
 		return err
 	}
 
+	//
+	// Renotify any outstanding alerts
+	//
+	err = helper.Renotify(NotifyAlert, cmd)
+	if err != nil {
+		return err
+	}
+
+	//
+	// Close the database-connection now.
+	//
 	helper.Close()
-	fmt.Printf("\tProcessing events complete: %s\n", time.Now())
+	fmt.Printf("Processing events complete: %s\n", time.Now())
 	return nil
 }
 
@@ -109,7 +123,5 @@ func ExecWithAlert(command string, event alert.Alert) error {
 // Send a notification for an alert which has become raised.
 //
 func NotifyAlert(event alert.Alert, config string) error {
-	fmt.Printf("Notifying for new event %s - via '%s'\n", event.ID, config)
-	fmt.Printf("\t%s\n\t%s\n", event.Subject, event.Detail)
 	return (ExecWithAlert(config, event))
 }

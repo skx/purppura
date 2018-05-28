@@ -175,7 +175,7 @@ func (s *Alerts) Alerts() ([]alert.Alert, error) {
 	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := s.db.Query("SELECT i,source,status,subject,detail,raise_at, notified_at from events")
+	rows, err := s.db.Query("SELECT i,source,status,subject,detail,raise_at, notified_at, notify_count from events")
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func (s *Alerts) Alerts() ([]alert.Alert, error) {
 	for rows.Next() {
 		var tmp alert.Alert
 
-		err := rows.Scan(&tmp.ID, &tmp.Source, &tmp.Status, &tmp.Subject, &tmp.Detail, &tmp.RaiseAt, &tmp.NotifiedAt)
+		err := rows.Scan(&tmp.ID, &tmp.Source, &tmp.Status, &tmp.Subject, &tmp.Detail, &tmp.RaiseAt, &tmp.NotifiedAt, &tmp.NotifyCount)
 		if err != nil {
 			return nil, err
 		}
@@ -228,7 +228,7 @@ func (s *Alerts) GetAlert(id int) (alert.Alert, error) {
 	//
 	// Select the status - for nodes seen in the past 24 hours.
 	//
-	rows, err := s.db.Query("SELECT i,source,status,subject,detail,raise_at, notified_at from events WHERe i=?", id)
+	rows, err := s.db.Query("SELECT i,source,status,subject,detail,raise_at, notified_at, notify_count from events WHERE i=?", id)
 	if err != nil {
 		return result, err
 	}
@@ -239,7 +239,7 @@ func (s *Alerts) GetAlert(id int) (alert.Alert, error) {
 	// structure and add to the list.
 	//
 	for rows.Next() {
-		err := rows.Scan(&result.ID, &result.Source, &result.Status, &result.Subject, &result.Detail, &result.RaiseAt, &result.NotifiedAt)
+		err := rows.Scan(&result.ID, &result.Source, &result.Status, &result.Subject, &result.Detail, &result.RaiseAt, &result.NotifiedAt, &result.NotifyCount)
 		if err != nil {
 			return result, err
 		}
@@ -359,7 +359,7 @@ func (s *Alerts) Notify(callback AlertRaise, config string) error {
 		// Mark this as raised
 		//
 		var raised *sql.Stmt
-		raised, err = s.db.Prepare("UPDATE events SET notified_at=?,status=? WHERE i=?")
+		raised, err = s.db.Prepare("UPDATE events SET notified_at=?,status=?, notify_count=1 WHERE i=?")
 		if err != nil {
 			return err
 		}
@@ -373,6 +373,79 @@ func (s *Alerts) Notify(callback AlertRaise, config string) error {
 	//
 	// For each of the alerts we've got to raise we should
 	// invoke the callback function.
+	//
+	for _, id := range toRaise {
+		data, err := s.GetAlert(id)
+		if err != nil {
+			fmt.Printf("error fetching id: %s\n", err.Error())
+			return err
+		}
+
+		if callback != nil {
+			callback(data, config)
+		}
+	}
+	return nil
+}
+
+// Notify anew any still-outstanding alerts.
+func (s *Alerts) Renotify(callback AlertRaise, config string) error {
+	var err error
+	if s.db == nil {
+		panic("Working with a closed database - bug")
+	}
+
+	var toRaise []int
+
+	//
+	// Our query.
+	//
+	//  For every alert in the raised state
+	//  If it was last notified more than a minute ago, renotify
+	//
+	var rows *sql.Rows
+	rows, err = s.db.Query("SELECT i FROM events WHERE status='raised' AND ( abs( notified_at - UNIX_TIMESTAMP(NOW()) ) >= 60 )")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	//
+	// For each row in the result-set
+	//
+	// Parse into a structure and add to the list.
+	//
+	for rows.Next() {
+		i := 0
+
+		err = rows.Scan(&i)
+		if err != nil {
+			return err
+		}
+
+		//
+		// Get the event we're going to notify.
+		//
+		toRaise = append(toRaise, i)
+
+		//
+		// Update the notification time AND the count of how many
+		// times this alert has been notified about.
+		//
+		var raised *sql.Stmt
+		raised, err = s.db.Prepare("UPDATE events SET notified_at=?,notify_count=notify_count+1 WHERE i=?")
+		if err != nil {
+			return err
+		}
+		_, err = raised.Exec(time.Now().Unix(), i)
+		if err != nil {
+			return err
+		}
+		raised.Close()
+	}
+
+	//
+	// For each of the alerts invoke our callback function.
 	//
 	for _, id := range toRaise {
 		data, err := s.GetAlert(id)

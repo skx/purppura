@@ -18,5 +18,6 @@ CREATE TABLE events (
   status char(10) DEFAULT 'pending',
   raise_at int default '0',
   notified_at int default '0',
+  notify_count int default '0',
   subject text not null,
   detail  text not null        );
