@@ -96,15 +96,27 @@ Further details are available in the [alert guide](ALERTS.md) - and you can see 
 
 ## Notifications
 
-The web-based user-interface lists alerts which are pending, raised, or acknowledges.  While this is useful it isn't going to wake anybody up if something fails overnight, so we have to allow notification via SMS, WhatsApp, etc.
+The web-based user-interface lists alerts which are pending, raised, or acknowledged.  While this is useful it isn't going to wake anybody up if something fails overnight, so we have to allow notification via SMS, WhatsApp, etc.
 
-There is no built-in facility for sending notifications, instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary:
+There is no built-in facility for routing notifications to people directly, instead the default alerting behaviour is to simply pipe any alert which is in the raised state into a binary called `purppura-notify`.
 
-* `purppura-notify`
-  * Executed when an alert is raised, or re-raised.
-  * Will receive all the details of the alert as a JSON-object on STDIN
+* You can find a sample `purppura-notify` beneath [notifiers/](notifiers/).
 
-By moving the notification into an external process you gain the flexibility
-to route alerts to humans in whichever way seems best to you.  You can find a sample notification-script [notifiers/](notifiers/) which alerts a human via pushover.
+The notification binary is executed with a JSON-representation of the event
+piped to it on STDIN, and will be executed in two situations:
+
+* The first time an event becomes raised.
+* Once every minute, as a reminder, as the event continues to be in the raised state.
+
+In addition to the actual event-details the JSON object will have a `NotifyCount` attribute, which will incremented once each time the alert has been piped to the binary.  This allows you to differentiate between the two obvious states:
+
+* The event has become raised for the first time.
+* This is a reminder that the event continues to be raised.
+
+Using the count is useful if you're using an external service to deliver your alert-messages which has its own reminder-system.  For example I use the [pushover](http://pushover.net/) service, and there is a facility there to repeat the notifications until they are read with the mobile phone application.
+
+Using the count-facility I configure my alerter to notify Pushover __once__,
+and if the event continues to be outstanding I don't need to needlessly repeat the phone-notification.
+
 
 **NOTE**: Remember that you need to add this script somewhere upon your `PATH`.

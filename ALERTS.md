@@ -113,22 +113,6 @@ Assuming that this update is sent every 60 seconds the alert will raise five min
 This works because the `raise` time is updated every time the incoming alert is received.  So when the first update is seen the `+5m` field might expand to the absolute time `Tue Jun 14 09:20:21 EEST 2016`, then a minute later the field will change to `Tue Jun 14 09:21:21 EEST 2016`.  The time at which the alert will raise will be pushed back a minute on each update, unless these updates cease.
 
 
-# Notifications
-
-By default notifications are repeated for each alert in the raised-state.  These notifications repeat every 60 seconds.
-
-The alerting is divided into two types:
-
-* An initial notification.
-  * This is issued once.
-* A repeated notification.
-  * These repeat notifications are issued once per minute, indefinitely.
-
-This behaviour is useful if you're using an external service to deliver your alert-messages.  For example I use the [pushover](http://pushover.net/) service, and there is a facility there to repeat the notifications until they are read with the mobile phone application.  If I raise the alert once there, the phone will beep every minute - so there is no need to repeatedly send the message.
-
-In my case what I do is configure the server to use a script to raise the event the first time, and the script which _should_ repeat the notifications is a NOP.
-
-
 ## Sample Clients
 
 You can find clients for submitting events beneath [examples/](examples/).
