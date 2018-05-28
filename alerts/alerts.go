@@ -13,6 +13,7 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/skx/purppura/alert"
 	"github.com/skx/purppura/util"

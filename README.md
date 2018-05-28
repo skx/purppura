@@ -22,26 +22,41 @@ To install the software run:
      ~ $ go get -u github.com/skx/purppura
      ~ $ go install github.com/skx/purppura
 
-Once installed you'll be ready to launc the server, but first of all you
+Once installed you'll be ready to launch the server, but first of all you
 must create the (MySQL) database and save the connection-details in the
-environment.
+environment.  The definition of the appropriate tables can be found in
+the [purppura.sql](purppura.sql) file.
 
-Something like this:
+Assuming you're using MySQL on the local-host you can export the details
+like so:
 
-      ~ $ export PURPLE_DSN=user:pass@tcp(localhost:3306)/purple?timeout=5s
+      ~ $ export PURPLE_DSN="user:pass@tcp(localhost:3306)/purple?timeout=5s"
+
+Once the environment has the correct details you can now launch the
+server:
+
       ~ $ purppura serve
       Listening on http://localhost:8080/
 
-The server presents a web interface which requires a login, so you'll also want to add at least one use - this can be done while the server is running, or before you launch it:
+You'll want to add at least one user who can login to the web-based user-interface.  Users are stored in the database, and can be added/listed/removed  while the server is running:
 
       ~ $ purppura add-user
       Enter Username: moi
       Enter Password: kissa
       ~ $
 
-> **NOTE**: Adding the user will also require the `$PURPLE_DSN` variable to be set.
+> **NOTE**: You must set the `$PURPLE_DSN` environmental-variable for adding, listing, or removing users.
 
 Once the user has been added you should be able to login to the web interface with username `moi` and password `kissa`.
+
+To see your users you can run:
+
+      ~ $ purppura list-users
+
+And to delete a user:
+
+      ~ $ purppura del-user
+      Enter Username: moi
 
 You can use the `del-user` sub-command to remove the user in the future, or the `list-users` sub-command to see the users which are present.
 
