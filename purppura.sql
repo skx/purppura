@@ -10,6 +10,11 @@
 # Finally we can create the tables like so:
 #
 
+
+#
+# Create the users-table
+#  NOTE/TODO: Hashing
+#
 CREATE TABLE users (
   i INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
   username char(65),
@@ -17,10 +22,13 @@ CREATE TABLE users (
 );
 
 
+#
+# Create the table for events.
+#
 CREATE TABLE events (
-  i INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  id    text not null,
-  source text not null,
+  i BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  id     char(100) not null,
+  source char(100) not null,
   status char(10) DEFAULT 'pending',
   raise_at int default '0',
   notified_at int default '0',
@@ -28,3 +36,6 @@ CREATE TABLE events (
   subject text not null,
   detail  text not null
 );
+
+# Add an index here, for querying.
+ALTER TABLE events ADD INDEX find (id, source);
