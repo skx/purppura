@@ -21,21 +21,31 @@ If that host were to suffer a crash then five minutes after the last submission 
 
 To install the software run:
 
-     ~ $ go get github.com/skx/purppura
+     ~ $ go get -u github.com/skx/purppura
+     ~ $ go install github.com/skx/purppura
 
-Once installed you'll be able to launch the server like so:
+Once installed you'll be ready to launc the server, but first of all you
+must create the (MySQL) database and save the connection-details in the
+environment.
 
+Something like this:
+
+      ~ $ export PURPLE_DSN=user:pass@tcp(localhost:3306)/purple?timeout=5s
       ~ $ purppura serve
       Listening on http://localhost:8080/
 
-**NOTE** however that the server presents a web interface which requires a login, so you'll need to add at least one user to the system.  This can be done while the server is running, or before you launch it:
+The server presents a web interface which requires a login, so you'll also want to add at least one use - this can be done while the server is running, or before you launch it:
 
       ~ $ purppura add-user
       Enter Username: moi
       Enter Password: kissa
       ~ $
 
-You should now be able to login to the web interface with username `steve` and password `secret`.  You can use the `del-user` sub-command to remove the user in the future, or the "list-users" sub-command to see the users.
+> **NOTE**: Adding the user will also require the `$PURPLE_DSN` variable to be set.
+
+Once the user has been added you should be able to login to the web interface with username `moi` and password `kissa`.
+
+You can use the `del-user` sub-command to remove the user in the future, or the `list-users` sub-command to see the users which are present.
 
 
 # Alerts
@@ -76,13 +86,13 @@ Further details are available in the [alert guide](ALERTS.md) - and you can see 
 
 The web-based user-interface lists alerts which are pending, raised, or acknowledges.  While this is useful it isn't going to wake anybody up if something fails overnight, so we have to allow notification via SMS, WhatsApp, etc.
 
-There is no built-in facility for sending text-messages, sending pushover notifications, or similar.  Instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary:
+There is no built-in facility for sending notifications, instead the default alerting behaviour is to simply pipe any alert which is in the raised state into an external binary:
 
 * `purppura-notify`
   * Executed when an alert is raised, or re-raised.
   * Will receive all the details of the alert as a JSON-object on STDIN
 
 By moving the notification into an external process you gain the flexibility
-to route alerts to humans in whichever way seems best to you.  You can find sample notification-scripts which push to pushover beneath [notifiers/](notifiers/).
+to route alerts to humans in whichever way seems best to you.  You can find a sample notification-script [notifiers/](notifiers/) which alerts a human via pushover.
 
 **NOTE**: Remember that you need to add this script somewhere upon your `PATH`.

@@ -103,8 +103,13 @@ func LoadCookie() {
 }
 
 // LoadEvents sets up a new (MySQL) database-connection.
-func LoadEvents() {
-	storage, _ = alerts.New()
+func LoadEvents() error {
+	var err error
+	storage, err = alerts.New()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // AddContext updates our HTTP-handlers to be username-aware.
@@ -587,7 +592,11 @@ func serve(settings serveCmd) {
 	//
 	// Ensure we have a database for our HTTP-handler
 	//
-	LoadEvents()
+	err := LoadEvents()
+	if err != nil {
+		fmt.Printf("Error with DB setup: %s\n", err.Error())
+		os.Exit(1)
+	}
 
 	//
 	// Create a scheduler to process our events frequently enough
@@ -652,7 +661,7 @@ func serve(settings serveCmd) {
 	//
 	// Launch the server.
 	//
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil {
 		fmt.Printf("\nError starting HTTP server: %s\n", err.Error())
 	}

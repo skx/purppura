@@ -54,6 +54,7 @@ func (p *addUserCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	storage, err := alerts.New()
 	if err != nil {
 		fmt.Printf("Creating database-handle failed: %s\n", err.Error())
+		os.Exit(1)
 	}
 	err = storage.AddUser(user, pass)
 	if err != nil {

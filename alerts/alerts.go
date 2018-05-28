@@ -8,10 +8,11 @@ package alerts
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/skx/purppura/alert"
 	"github.com/skx/purppura/util"
@@ -34,32 +35,12 @@ func New() (*Alerts, error) {
 	m := new(Alerts)
 
 	//
-	// Create a default configuration structure for MySQL.
+	// Get our DSN from the environment
 	//
-	config := mysql.NewConfig()
-
-	//
-	// Populate the username & password fields.
-	//
-	// This all needs to be configurable in the future.
-	//
-	config.User = "purple"
-	config.Passwd = "purple"
-	config.DBName = "purple"
-	config.Net = "tcp"
-	config.Addr = "www.vpn:3306"
-	config.Timeout = 5 * time.Second
-
-	//
-	// Now convert the connection-string to a DSN, which
-	// is used to connect to the database.
-	//
-	dsn := config.FormatDSN()
-
-	//
-	// Show the DSN, if appropriate.
-	//
-	//	fmt.Printf("\tMySQL DSN is %s\n", dsn)
+	dsn := os.Getenv("PURPLE_DSN")
+	if dsn == "" {
+		return m, errors.New("You must specify the environmental variable 'PURPLE_DSN' with your DB details")
+	}
 
 	//
 	// Connect to the database

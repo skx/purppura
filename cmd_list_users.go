@@ -8,6 +8,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/google/subcommands"
 	"github.com/skx/purppura/alerts"
@@ -41,6 +42,7 @@ func (p *listUsersCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interfac
 	storage, err := alerts.New()
 	if err != nil {
 		fmt.Printf("Creating database-handle failed: %s\n", err.Error())
+		os.Exit(1)
 	}
 
 	var usernames []string
