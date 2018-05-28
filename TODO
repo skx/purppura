@@ -1,10 +1,1 @@
-* Recreate tables with autoinc-ids
-
 * Move the test-code.
-
-* Test the notification.
-
-* Re-add the ability to re-notify
-
-  -> We should have a counter for alerts
-     this would be >1 on the future notifications to allow the script to decide if it wanted to make them again.
