@@ -12,8 +12,7 @@
 
 
 #
-# Create the users-table
-#  NOTE/TODO: Hashing
+# Create the table for storing usernames & (bcrypt) password hashes.
 #
 CREATE TABLE users (
   i INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,

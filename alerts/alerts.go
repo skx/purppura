@@ -17,6 +17,7 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/skx/purppura/alert"
 	"github.com/skx/purppura/util"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Alerts is our object for interfacing with alerts.
@@ -524,20 +525,20 @@ func (s *Alerts) ValidateLogin(user string, pass string) (bool, error) {
 	}
 
 	//
-	// The login we're going to fetch
+	// The password we're going to fetch
 	//
-	login := ""
+	password := ""
 
 	//
 	//
-	rows, err := s.db.Query("SELECT username FROM users WHERE username=? AND password=?", user, pass)
+	rows, err := s.db.Query("SELECT password FROM users WHERE username=?", user)
 	if err != nil {
 		return false, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&login)
+		err := rows.Scan(&password)
 		if err != nil {
 			return false, err
 		}
@@ -547,10 +548,14 @@ func (s *Alerts) ValidateLogin(user string, pass string) (bool, error) {
 		return false, err
 	}
 
-	if (login == user) && (login != "") {
-		return true, nil
+	//
+	// Now we have a hashed password, so we need to compare it.
+	//
+	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(pass))
+	if err != nil {
+		return false, nil
 	}
-	return false, nil
+	return true, nil
 }
 
 // AddUser adds a new user to the database
@@ -559,13 +564,23 @@ func (s *Alerts) AddUser(user string, pass string) error {
 		panic("Working with a closed database - bug")
 	}
 
+	//
+	// We're going to store a hashed password.
+	//
+	// So we need to create the hash.
+	//
+	hash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+
 	stmt, err := s.db.Prepare("INSERT INTO users( username, password ) VALUES( ?, ? )")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user, pass)
+	_, err = stmt.Exec(user, hash)
 	if err != nil {
 		return err
 	}
