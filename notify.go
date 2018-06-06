@@ -36,6 +36,9 @@ func ProcessAlertsScheduler(cmd string) {
 		fmt.Printf("Error creating DB : %s\n", err.Error())
 	}
 
+	//
+	// Every half-minute, or so, process state-changes.
+	//
 	for range time.Tick(time.Second * 34) {
 		err := ProcessAlerts(cmd)
 		if err != nil {
