@@ -49,6 +49,9 @@ func ProcessAlertsScheduler(cmd string) {
 //
 func ProcessAlerts(cmd string) error {
 
+	//
+	// Show the start-time of processing.
+	//
 	fmt.Printf("Processing events at %s\n", time.Now())
 
 	//
@@ -87,7 +90,7 @@ func ProcessAlerts(cmd string) error {
 	}
 
 	//
-	// Close the database-connection now.
+	// Show the end-time of processing.
 	//
 	fmt.Printf("Processing events complete: %s\n", time.Now())
 	return nil
