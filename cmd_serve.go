@@ -263,7 +263,15 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 				return
 			}
 
-			// Add it.
+			//
+			// Remove any IPv6-prefix, if present, on the source IP.
+			//
+			if strings.HasPrefix(ent.Source, "::ffff:") {
+				ent.Source = strings.TrimPrefix(ent.Source, "::ffff:")
+			}
+
+			//
+			// Add the event.
 			//
 			err = storage.AddEvent(ent)
 
@@ -298,6 +306,13 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 		if single.Detail == "" {
 			http.Error(res, "Missing 'detail' field", 500)
 			return
+		}
+
+		//
+		// Remove any IPv6-prefix, if present, on the source IP.
+		//
+		if strings.HasPrefix(single.Source, "::ffff:") {
+			single.Source = strings.TrimPrefix(single.Source, "::ffff:")
 		}
 
 		//
