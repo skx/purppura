@@ -42,7 +42,7 @@ var cookieHandler *securecookie.SecureCookie
 //
 var storage *alerts.Alerts
 
-// LoadCookie loads the persistant cookies from disc, if they exist.
+// LoadCookie loads the persistent cookies from disc, if they exist.
 func LoadCookie() {
 
 	//
