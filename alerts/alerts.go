@@ -13,7 +13,7 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // MySQL driver
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/skx/purppura/alert"
 	"github.com/skx/purppura/util"
@@ -161,7 +161,7 @@ func (s *Alerts) AddEvent(data alert.Alert) error {
 	return nil
 }
 
-// Return all alerts, and their details.
+// Alerts return all alerts, and their details.
 func (s *Alerts) Alerts() ([]alert.Alert, error) {
 
 	if s.db == nil {
@@ -294,9 +294,7 @@ func (s *Alerts) RaiseEvent(id string) error {
 	return (s.setEventState(id, "raised"))
 }
 
-//
-// Remove old/obsolete events from the database.
-//
+// Reap remove old/obsolete events from the database.
 func (s *Alerts) Reap() error {
 	if s.db == nil {
 		panic("Working with a closed database - bug")
@@ -403,9 +401,8 @@ func (s *Alerts) Notify(callback AlertRaise, config string) error {
 	return nil
 }
 
-// Notify anew any still-outstanding alerts.
-//
-// This function handles re-notification for outstanding alerts.
+// Renotify triggers notifications for any alerts which continue to be
+// outstanding.
 func (s *Alerts) Renotify(callback AlertRaise, config string) error {
 	var err error
 	if s.db == nil {
@@ -483,8 +480,8 @@ func (s *Alerts) Renotify(callback AlertRaise, config string) error {
 }
 
 //
-// If an alert is in a raised state, but the `raise_at` time is in the
-// future then we can clear it.
+// Warp handles any alerts in a raised state, having a `raise_at` time in the
+// future.  (By clearing them.)
 //
 // This allows heartbeat alerts to auto-clear when they return.
 //
@@ -517,7 +514,7 @@ func (s *Alerts) Warp() error {
 }
 
 //
-// User/Pass setup
+// ValidateLogin tests a given User/Pass pair for validity
 //
 func (s *Alerts) ValidateLogin(user string, pass string) (bool, error) {
 	if s.db == nil {
