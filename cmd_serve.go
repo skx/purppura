@@ -32,6 +32,18 @@ import (
 	"github.com/skx/purppura/alerts"
 )
 
+// key is the type for a context-key
+//
+// We use context to store the remote host (URI), username, & password
+// in our session-cookie.
+type key int
+
+const (
+
+	// keyUser stores the username.
+	keyUser key = iota
+)
+
 //
 // The secure-cookie object we use.
 //
@@ -132,7 +144,7 @@ func AddContext(next http.Handler) http.Handler {
 				// username.
 				//
 				userName := cookieValue["name"]
-				ctx := context.WithValue(r.Context(), "Username", userName)
+				ctx := context.WithValue(r.Context(), keyUser, userName)
 				//
 				// And fire it up.
 				//
@@ -337,7 +349,7 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	username := req.Context().Value("Username")
+	username := req.Context().Value(keyUser)
 	if username == nil {
 		http.Redirect(res, req, "/login", 302)
 		return
@@ -362,7 +374,7 @@ func clearEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	username := req.Context().Value("Username")
+	username := req.Context().Value(keyUser)
 	if username == nil {
 		http.Redirect(res, req, "/login", 302)
 		return
@@ -386,7 +398,7 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	username := req.Context().Value("Username")
+	username := req.Context().Value(keyUser)
 	if username == nil {
 		http.Redirect(res, req, "/login", 302)
 		return
@@ -494,7 +506,7 @@ func eventsHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	username := request.Context().Value("Username")
+	username := request.Context().Value(keyUser)
 	if username == nil {
 		http.Redirect(response, request, "/login", 302)
 		return
@@ -532,7 +544,7 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	// Ensure the user is logged-in.
 	//
-	username := request.Context().Value("Username")
+	username := request.Context().Value(keyUser)
 	if username == nil {
 		http.Redirect(response, request, "/login", 302)
 		return
