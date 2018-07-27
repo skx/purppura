@@ -8,7 +8,7 @@ import (
 )
 
 //
-// Convert a string into an absolute timestamp
+// Str2Unix converts a "time string" into an absolute timestamp.
 //
 // For example "+5m", "+6H", "now", or "clear"
 //
