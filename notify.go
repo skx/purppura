@@ -100,8 +100,8 @@ func ProcessAlerts(cmd string) error {
 }
 
 //
-// Execute the given command with the Alert-event piped to it
-// on STDIN, as JSON.
+// ExecuteWithAlert executes the specified command with the Alert-event
+// piped to it on STDIN, as JSON.
 //
 func ExecWithAlert(command string, event alert.Alert) error {
 
@@ -127,7 +127,8 @@ func ExecWithAlert(command string, event alert.Alert) error {
 }
 
 //
-// Send a notification for an alert which has become raised.
+// NotifyAlert triggers a notification for the alert which has now become
+// raised.
 //
 func NotifyAlert(event alert.Alert, config string) error {
 	return (ExecWithAlert(config, event))
