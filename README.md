@@ -6,7 +6,7 @@
 
 # Purppura
 
-Purppura is an alert manager which allows the centralised collection and distribution of "alerts".
+Purppura is an alert manager which allows the centralised collection and distribution of events or alerts.  (Things submitted are events, but they become alerts when they _alert_ a human!)
 
 For example a trivial heartbeat-style alert might be implemented by having a host send a message every minute:
 
@@ -14,6 +14,38 @@ For example a trivial heartbeat-style alert might be implemented by having a hos
    * i.e. This is a [dead man's switch](https://en.wikipedia.org/wiki/Dead_man%27s_switch) system.
 
 If that host were to suffer a crash then five minutes after the last submission of the event an alert would be raised, and a human would be notified.
+
+
+# Alerts
+
+Events are submitted by making a HTTP POST-request to the server, with a JSON-payload containing a [number of fields](ALERTS.md).  When a new POST request is received it will be transformed into an event:
+
+* If the event is new it will be saved into the database.
+* If the event has been previously seen, then the fields of that existing entry will be updated.
+   * This is possible because events are uniquely identified by a combination of the submitted `id` field and the source IP address from which it was received.
+
+Events have several states:
+
+* Pending.
+   * An event might become raised at some point in the future.
+* Raised.
+   * A raised event will trigger a notification every **minute** to inform your sysadmin(s).
+* Acknowledged
+   * An alert in the acknowledged state will not re-notify.
+   * An event can be acknowledged via the HTTP-server, and it is assumed a human will do that to indicate they're handling the issue.
+* Cleared
+   * Alerts in the cleared-state are reaped over time.
+
+The required fields for a submission are documented in [ALERTS.md](ALERTS.md),
+but in brief you need to submit:
+
+|Field Name | Purpose                                                   |
+|-----------|-----------------------------------------------------------|
+|id         | Name of the alert                                         |
+|subject    | Human-readable description of the alert-event.            |
+|detail     | Human-readable (expanded) description of the alert-event. |
+|raise      | When this alert should be raised. ("now", "+5m", etc)     |
+
 
 
 ## Installation
@@ -59,40 +91,6 @@ And to delete a user:
       ~ $ purppura del-user
       Enter Username: moi
 
-
-
-# Alerts
-
-Events are submitted by making a HTTP POST-request to the server, with a JSON-payload containing a [number of fields](ALERTS.md).
-
-When a new POST request is received it will be transformed into an alert:
-
-* If the alert is new it will be saved into the database.
-* If the alert has been previously seen, then the fields of that existing alert will be updated.
-     * This is possible because alerts are uniquely identified by a combination of the submitted `id` field and the source IP address from which it was received.
-
-Alerts have several states:
-
-* Pending.
-   * An alert will raise at some point in the future.
-* Raised.
-   * A raised alert will trigger a notification every **minute** to inform your sysadmin(s).
-* Acknowledged
-   * An alert in the acknowledged state will not re-notify.
-* Cleared
-   * Alerts which are cleared have previously been raised but have now cleared.
-   * Alerts in the cleared-state are reaped over time.
-
-The required fields for a submission are:
-
-|Field Name | Purpose                                                   |
-|-----------|-----------------------------------------------------------|
-|id         | Name of the alert                                         |
-|subject    | Human-readable description of the alert-event.            |
-|detail     | Human-readable (expanded) description of the alert-event. |
-|raise      | When this alert should be raised.                         |
-
-Further details are available in the [alert guide](ALERTS.md) - and you can see some example scripts which submit events, beneath [examples/](examples/).
 
 
 ## Notifications
