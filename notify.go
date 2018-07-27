@@ -18,7 +18,7 @@ import (
 )
 
 //
-// The persistance object for getting/setting alerts.
+// The persistence object for getting/setting alerts.
 //
 var db *alerts.Alerts
 

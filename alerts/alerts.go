@@ -1,5 +1,5 @@
 //
-// The Alerts package contains code relating to the persistance and
+// The Alerts package contains code relating to the storage and
 // manipulation of alerts.
 //
 //
@@ -78,7 +78,7 @@ func (s *Alerts) Close() {
 	s.db = nil
 }
 
-// AddEvent adds a new event to our persistant storage.
+// AddEvent adds a new event to our database.
 func (s *Alerts) AddEvent(data alert.Alert) error {
 
 	if s.db == nil {
@@ -498,7 +498,7 @@ func (s *Alerts) Warp() error {
 	// The query we'll execute.
 	//
 	//  If there is a time to raise.
-	//  and that time is in teh future
+	//  and that time is in the future
 	//    (i.e. not the past)
 	//  then the alert should be "pending".
 	//

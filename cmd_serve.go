@@ -38,11 +38,11 @@ import (
 var cookieHandler *securecookie.SecureCookie
 
 //
-// The persistance object for getting/setting alerts.
+// The persistence object for getting/setting alerts.
 //
 var storage *alerts.Alerts
 
-// LoadCookie loads the persistent cookies from disc, if they exist.
+// LoadCookie loads the persistant cookies from disc, if they exist.
 func LoadCookie() {
 
 	//
@@ -85,13 +85,13 @@ func LoadCookie() {
 	//
 	err = ioutil.WriteFile(".cookie.hsh", h, 0644)
 	if err != nil {
-		fmt.Printf("WARNING: failed to write .cookie.hsh for persistent secure cookie")
+		fmt.Printf("WARNING: failed to write .cookie.hsh for our secure cookie")
 		cookieHandler = securecookie.New(h, b)
 		return
 	}
 	err = ioutil.WriteFile(".cookie.blk", b, 0644)
 	if err != nil {
-		fmt.Printf("WARNING: failed to write .cookie.blk for persistent secure cookie")
+		fmt.Printf("WARNING: failed to write .cookie.blk for our secure cookie")
 		cookieHandler = securecookie.New(h, b)
 		return
 	}
