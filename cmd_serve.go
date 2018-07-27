@@ -138,22 +138,18 @@ func AddContext(next http.Handler) http.Handler {
 				//
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
-			} else {
-				//
-				// We failed to decode the cookie.
-				//
-				// Probably it was created with the random-key
-				// of a previous run of the server.  So we
-				// just fall-back to assuming we're not logged
-				// in, and have no context.
-				//
-				next.ServeHTTP(w, r)
-				return
 			}
-		} else {
-			next.ServeHTTP(w, r)
-			return
 		}
+
+		//
+		// We either failed to decode the cookie, or the cookie
+		// was missing.
+		//
+		// So we fall-back to assuming we're there is no user logged
+		// in, and supply no context.
+		//
+		next.ServeHTTP(w, r)
+		return
 	})
 }
 
