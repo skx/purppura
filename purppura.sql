@@ -28,7 +28,7 @@ CREATE TABLE events (
   i BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   id     char(100) not null,
   source char(100) not null,
-  status char(10) DEFAULT 'pending',
+  status char(15) DEFAULT 'pending',
   raise_at int default '0',
   notified_at int default '0',
   notify_count int default '0',
