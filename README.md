@@ -136,3 +136,14 @@ As an example of something that extensively communicates with `purppura` please 
 * https://github.com/skx/overseer
 
 `overseer` carries out network testing, and submits the results of each test to a central purppura instance - automatically raising/clearing alerts as systems and services come and go.  The notification system that `overseer` provides is [very flexible](https://github.com/skx/overseer/#notification); but I use purppura exclusively.
+
+
+## Github Setup
+
+This repository is configured to run tests upon every commit, and when
+pull-requests are created/updated.  The testing is carried out via
+[.github/run-tests.sh](.github/run-tests.sh) which is used by the
+[github-action-tester](https://github.com/skx/github-action-tester) action.
+
+Releases are automated in a similar fashion via [.github/build](.github/build),
+and the [github-action-publish-binaries](https://github.com/skx/github-action-publish-binaries) action.
