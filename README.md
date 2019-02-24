@@ -1,4 +1,3 @@
-[![Travis CI](https://img.shields.io/travis/skx/purppura/master.svg?style=flat-square)](https://travis-ci.org/skx/purppura)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/purppura)](https://goreportcard.com/report/github.com/skx/purppura)
 [![license](https://img.shields.io/github/license/skx/purppura.svg)](https://github.com/skx/purppura/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/skx/purppura.svg)](https://github.com/skx/purppura/releases/latest)
