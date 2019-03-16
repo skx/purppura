@@ -112,7 +112,7 @@ func (s *Alerts) AddEvent(data alert.Alert) error {
 	// structure and add to the list.
 	//
 	for rows.Next() {
-		err := rows.Scan(&id)
+		err = rows.Scan(&id)
 		if err != nil {
 			return err
 		}
@@ -194,7 +194,7 @@ func (s *Alerts) Alerts() ([]alert.Alert, error) {
 	for rows.Next() {
 		var tmp alert.Alert
 
-		err := rows.Scan(&tmp.ID, &tmp.Source, &tmp.Status, &tmp.Subject, &tmp.Detail, &tmp.RaiseAt, &tmp.NotifiedAt, &tmp.NotifyCount)
+		err = rows.Scan(&tmp.ID, &tmp.Source, &tmp.Status, &tmp.Subject, &tmp.Detail, &tmp.RaiseAt, &tmp.NotifiedAt, &tmp.NotifyCount)
 		if err != nil {
 			return nil, err
 		}
@@ -248,7 +248,7 @@ func (s *Alerts) GetAlert(id int) (alert.Alert, error) {
 	// structure and add to the list.
 	//
 	for rows.Next() {
-		err := rows.Scan(&result.ID, &result.Source, &result.Status, &result.Subject, &result.Detail, &result.RaiseAt, &result.NotifiedAt, &result.NotifyCount)
+		err = rows.Scan(&result.ID, &result.Source, &result.Status, &result.Subject, &result.Detail, &result.RaiseAt, &result.NotifiedAt, &result.NotifyCount)
 		if err != nil {
 			return result, err
 		}
@@ -535,7 +535,7 @@ func (s *Alerts) ValidateLogin(user string, pass string) (bool, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&password)
+		err = rows.Scan(&password)
 		if err != nil {
 			return false, err
 		}
@@ -635,7 +635,7 @@ func (s *Alerts) GetUsers() ([]string, error) {
 	//
 	for rows.Next() {
 		var tmp string
-		err := rows.Scan(&tmp)
+		err = rows.Scan(&tmp)
 		if err != nil {
 			return result, err
 		}
