@@ -47,12 +47,30 @@ but in brief you need to submit:
 
 
 
+
 ## Installation
 
-To install purppura run:
+There are two ways to install this project from source, which depend on the version of the [go](https://golang.org/) version you're using.
 
-     ~ $ go get -u github.com/skx/purppura
-     ~ $ go install github.com/skx/purppura
+If you just need the binaries you can find them upon the [project release page](https://github.com/skx/purppura/releases).
+
+
+### Source Installation go <=  1.11
+
+If you're using `go` before 1.11 then the following command should fetch/update `overseer`, and install it upon your system:
+
+     $ go get -u github.com/skx/purppura
+
+### Source installation go  >= 1.12
+
+If you're using a more recent version of `go` (which is _highly_ recommended), you need to clone to a directory which is not present upon your `GOPATH`:
+
+    git clone https://github.com/skx/purppura
+    cd overseer
+    go install
+
+
+### Post-Installation Setup
 
 Once installed you'll be ready to launch the server, but first of all you
 must create the (MySQL) database and save the connection-details in the
