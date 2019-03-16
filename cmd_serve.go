@@ -66,7 +66,8 @@ func LoadCookie() {
 		//
 		// If there was no error read the block
 		//
-		block, err := ioutil.ReadFile(".cookie.blk")
+		var block []byte
+		block, err = ioutil.ReadFile(".cookie.blk")
 		if err == nil {
 
 			//
