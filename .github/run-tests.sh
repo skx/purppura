@@ -7,7 +7,7 @@ go get -u honnef.co/go/tools/cmd/staticcheck
 
 # Run the static-check tool - we ignore documentation-errors.
 t=$(mktemp)
-staticcheck -checks all ./... | grep -v "package comment"> $t
+staticcheck -checks all ./... | grep -v "package comment" | grep -v context.TODO > $t
 if [ -s $t ]; then
     echo "Found errors via 'staticcheck'"
     cat $t
