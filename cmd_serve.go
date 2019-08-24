@@ -162,7 +162,6 @@ func AddContext(next http.Handler) http.Handler {
 		// in, and supply no context.
 		//
 		next.ServeHTTP(w, r)
-		return
 	})
 }
 
@@ -352,7 +351,7 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	username := req.Context().Value(keyUser)
 	if username == nil {
-		http.Redirect(res, req, "/login", 302)
+		http.Redirect(res, req, "/login", http.StatusFound)
 		return
 	}
 
@@ -363,7 +362,7 @@ func ackEvent(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	storage.AckEvent(id)
-	http.Redirect(res, req, "/", 302)
+	http.Redirect(res, req, "/", http.StatusFound)
 
 }
 
@@ -377,7 +376,7 @@ func clearEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	username := req.Context().Value(keyUser)
 	if username == nil {
-		http.Redirect(res, req, "/login", 302)
+		http.Redirect(res, req, "/login", http.StatusFound)
 		return
 	}
 
@@ -388,7 +387,7 @@ func clearEvent(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	storage.ClearEvent(id)
-	http.Redirect(res, req, "/", 302)
+	http.Redirect(res, req, "/", http.StatusFound)
 
 }
 
@@ -401,7 +400,7 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 	//
 	username := req.Context().Value(keyUser)
 	if username == nil {
-		http.Redirect(res, req, "/login", 302)
+		http.Redirect(res, req, "/login", http.StatusFound)
 		return
 	}
 
@@ -412,7 +411,7 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 	id := vars["id"]
 
 	storage.RaiseEvent(id)
-	http.Redirect(res, req, "/", 302)
+	http.Redirect(res, req, "/", http.StatusFound)
 
 }
 
@@ -422,11 +421,11 @@ func raiseEvent(res http.ResponseWriter, req *http.Request) {
 func serveResource(response http.ResponseWriter, request *http.Request, resource string, mime string) {
 	tmpl, err := getResource(resource)
 	if err != nil {
-		fmt.Fprintf(response, err.Error())
+		fmt.Fprint(response, err.Error())
 		return
 	}
 	response.Header().Set("Content-Type", mime)
-	fmt.Fprintf(response, string(tmpl))
+	fmt.Fprint(response, string(tmpl))
 }
 
 //
@@ -473,14 +472,14 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 			http.SetCookie(response, cookie)
 		}
 
-		http.Redirect(response, request, "/", 302)
+		http.Redirect(response, request, "/", http.StatusFound)
 		return
 	}
 
 	//
 	// Failure to login, redirect to try again.
 	//
-	http.Redirect(response, request, "/login#failed", 302)
+	http.Redirect(response, request, "/login#failed", http.StatusFound)
 }
 
 //
@@ -494,7 +493,7 @@ func logoutHandler(response http.ResponseWriter, request *http.Request) {
 		MaxAge: -1,
 	}
 	http.SetCookie(response, cookie)
-	http.Redirect(response, request, "/", 302)
+	http.Redirect(response, request, "/", http.StatusFound)
 }
 
 //
@@ -509,7 +508,7 @@ func eventsHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	username := request.Context().Value(keyUser)
 	if username == nil {
-		http.Redirect(response, request, "/login", 302)
+		http.Redirect(response, request, "/login", http.StatusFound)
 		return
 	}
 
@@ -547,7 +546,7 @@ func indexPageHandler(response http.ResponseWriter, request *http.Request) {
 	//
 	username := request.Context().Value(keyUser)
 	if username == nil {
-		http.Redirect(response, request, "/login", 302)
+		http.Redirect(response, request, "/login", http.StatusFound)
 		return
 	}
 

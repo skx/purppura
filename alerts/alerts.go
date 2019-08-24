@@ -47,7 +47,7 @@ func New() (*Alerts, error) {
 	//
 	dsn := os.Getenv("PURPLE_DSN")
 	if dsn == "" {
-		return m, errors.New("You must specify the environmental variable 'PURPLE_DSN' with your DB details")
+		return m, errors.New("you must specify the environmental variable 'PURPLE_DSN' with your DB details")
 	}
 
 	//
@@ -147,10 +147,10 @@ func (s *Alerts) AddEvent(data alert.Alert) error {
 		// Otherwise update the existing event in-place.
 		//
 		up, err := s.db.Prepare("UPDATE events SET raise_at=?, subject=?, detail=?  WHERE i=?")
-		defer up.Close()
 		if err != nil {
 			return err
 		}
+		defer up.Close()
 
 		_, err = up.Exec(raise, data.Subject, data.Detail, id)
 		if err != nil {
