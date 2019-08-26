@@ -1,3 +1,4 @@
+// Package alert contains our alert-structure details.
 package alert
 
 //

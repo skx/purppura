@@ -1,9 +1,5 @@
-//
-// The Alerts package contains code relating to the storage and
-// manipulation of alerts.
-//
-//
-
+// Package alerts contains code relating to the storage and manipulation of
+// alerts.
 package alerts
 
 import (
