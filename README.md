@@ -13,6 +13,7 @@ Table of Contents
   * [Post-Installation Setup](#post-installation-setup)
 * [Notifications](#notifications)
 * [Links](#links)
+* [Docker](#docker)
 * [Github Setup](#github-setup)
 
 
@@ -167,6 +168,48 @@ As an example of something that extensively communicates with `purppura` please 
 * https://github.com/skx/overseer
 
 `overseer` carries out network testing, and submits the results of each test to a central purppura instance - automatically raising/clearing alerts as systems and services come and go.  The notification system that `overseer` provides is [very flexible](https://github.com/skx/overseer/#notifications); but I use purppura exclusively.
+
+
+
+## Docker
+
+Building the Docker image is as simple as you would expect:
+
+```
+$ docker build -t purppura:latest .
+```
+
+However note that when it comes to _deployment_ there are a couple of complications:
+
+* We need the MySQL database to be created and populated.
+  * Due to this you'll need to copy the `purppura.sql` file to the host you're running on.
+* We need to have an external binary to issue the notifications.
+  * When an alert is raised an executable will be launched, with the alert details piped to STDIN.
+  * So you'll need to bind-mount the notification script to `/srv/bin/purppura-notify`.
+
+On the host you're running the application upon that means you'll need these three files:
+
+* `docker-compose.yml`
+  * The helper to launch the containers.
+* `purppura-notify`
+  * The script executed when an alert is raised.
+* `purppura.sql`
+  * The database file.
+
+Assuming those files are present:
+
+```
+$ docker-compose up -d
+```
+
+Now you can add your user:
+
+```
+$ docker exec -t -i purppura_purppura_1 /app/purppura add-user
+```
+
+After the first run you won't need the `purppura.sql` file, as the MySQL state will be persisted locally, but leaving it in-place is safest.
+
 
 
 ## Github Setup

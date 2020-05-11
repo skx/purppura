@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  purppura:
+    image: purppura:latest
+    restart: always
+    environment:
+      - PURPLE_DSN=purple:purple@tcp(mysql:3306)/purple
+    ports:
+      - '127.0.0.1:8080:8080'
+    links:
+      - mysql:mysql
+    volumes:
+      - ./purppura-notify:/srv/bin/purppura-notify
+  mysql:
+    image: mysql:5.7
+    restart: always
+    command: --init-file /srv/init.sql
+    environment:
+      - MYSQL_DATABASE=purple
+      - MYSQL_ROOT_PASSWORD=super-secret
+    ports:
+      - '127.0.0.1:3306:3306'
+    volumes:
+      - ./mysql.state:/var/lib/mysql
+      - ./purppura.sql:/srv/init.sql
