@@ -247,9 +247,11 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 		for _, ent := range multi {
 
 			//
-			// Ensure the alert has the correct source.
+			// Ensure the alert has an IP.
 			//
-			ent.Source = ip
+			if ent.Source == "" {
+				ent.Source = ip
+			}
 
 			//
 			// Ensure we have all the fields we expect
@@ -292,9 +294,11 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 	} else {
 
 		//
-		// Ensure the alert has the correct source.
+		// Ensure the alert has a source specified.
 		//
-		single.Source = ip
+		if single.Source == "" {
+			single.Source = ip
+		}
 
 		//
 		// Ensure we have all the fields we expect
