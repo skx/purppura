@@ -276,9 +276,7 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 			//
 			// Remove any IPv6-prefix, if present, on the source IP.
 			//
-			if strings.HasPrefix(ent.Source, "::ffff:") {
-				ent.Source = strings.TrimPrefix(ent.Source, "::ffff:")
-			}
+			ent.Source = strings.TrimPrefix(ent.Source, "::ffff:")
 
 			//
 			// Add the event.
@@ -323,9 +321,7 @@ func alertSubmissionHandler(res http.ResponseWriter, request *http.Request) {
 		//
 		// Remove any IPv6-prefix, if present, on the source IP.
 		//
-		if strings.HasPrefix(single.Source, "::ffff:") {
-			single.Source = strings.TrimPrefix(single.Source, "::ffff:")
-		}
+		single.Source = strings.TrimPrefix(single.Source, "::ffff:")
 
 		//
 		// Add it.
