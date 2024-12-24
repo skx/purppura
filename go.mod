@@ -12,7 +12,7 @@ require (
 	github.com/gorilla/securecookie v1.1.2
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/skx/golang-metrics v0.0.0-20190325085214-453332cf54e8
-	golang.org/x/crypto v0.22.0
+	golang.org/x/crypto v0.31.0
 )
 
 require (
