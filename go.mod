@@ -1,8 +1,7 @@
 module github.com/skx/purppura
 
 go 1.21
-
-toolchain go1.22.2
+toolchain go1.24.1
 
 require (
 	github.com/go-sql-driver/mysql v1.8.1
@@ -12,7 +11,7 @@ require (
 	github.com/gorilla/securecookie v1.1.2
 	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/skx/golang-metrics v0.0.0-20190325085214-453332cf54e8
-	golang.org/x/crypto v0.31.0
+	golang.org/x/crypto v0.35.0
 )
 
 require (
